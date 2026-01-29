@@ -1314,7 +1314,10 @@
             try {
                 const res = await fetch('/api/articles.php');
                 const data = await res.json();
-                if (!data.success) return;
+                if (!data.success || !data.articles || data.articles.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: #999; padding: 40px; grid-column: 1 / -1;">لا توجد مقالات منشورة حالياً</p>';
+                    return;
+                }
 
                 grid.innerHTML = '';
                 data.articles.forEach(article => {
@@ -1347,6 +1350,7 @@
                 document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
             } catch (e) {
                 console.error('Failed to load articles', e);
+                grid.innerHTML = '<p style="text-align: center; color: #999; padding: 40px; grid-column: 1 / -1;">عذراً، حدث خطأ في تحميل المقالات</p>';
             }
         }
 
