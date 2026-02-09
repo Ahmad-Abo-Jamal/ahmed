@@ -15,6 +15,7 @@ try {
     ];
 } catch(PDOException $e) {
     $stats = ['messages' => 0, 'articles' => 0, 'services' => 0, 'total_messages' => 0];
+    $stats = ['messages' => 0, 'articles' => 0, 'services' => 0, 'total_messages' => 0, 'sectors' => 0, 'brands' => 0];
 }
 
 // Logout handler
@@ -240,6 +241,12 @@ if (isset($_GET['logout'])) {
                 </a>
                 
                 <a href="?page=settings" class="menu-item <?php echo $page === 'settings' ? 'active' : ''; ?>">
+                                    <a href="?page=sectors" class="menu-item <?php echo $page === 'sectors' ? 'active' : ''; ?>">
+                                        <i class="fas fa-layer-group"></i>
+                                        <span>القطاعات و العلامات</span>
+                                    </a>
+                
+                                    <a href="?page=settings" class="menu-item <?php echo $page === 'settings' ? 'active' : ''; ?>">
                     <i class="fas fa-cog"></i>
                     <span>الإعدادات</span>
                 </a>

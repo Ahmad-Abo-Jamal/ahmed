@@ -73,6 +73,10 @@ $articles = $stmt->fetchAll();
             <div class="form-group">
                 <label>المحتوى</label>
                 <textarea id="content" name="content" rows="6" required></textarea>
+                <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+                    <button type="button" id="previewBtn" class="btn-edit">معاينة</button>
+                    <div id="readingInfo" style="color:#666; font-size:14px; margin-left:10px">الكلمات: <span id="wordCount">0</span> • وقت القراءة: <strong id="readingTime">0</strong> دقيقة</div>
+                </div>
             </div>
             <div class="form-group">
                 <label>التصنيف</label>
@@ -91,6 +95,11 @@ $articles = $stmt->fetchAll();
             <div class="form-group">
                 <label>رابط الصورة</label>
                 <input type="url" id="image_url" name="image_url">
+                <div style="margin-top:8px; display:flex; gap:8px; align-items:center">
+                    <input type="file" id="imageFile" accept="image/*">
+                    <button type="button" id="uploadImageBtn" class="btn-edit">رفع الصورة</button>
+                    <img id="imagePreview" src="" alt="preview" style="height:40px;display:none;border-radius:6px;margin-left:8px">
+                </div>
             </div>
             <div class="form-group">
                 <label>الحالة</label>
@@ -105,6 +114,15 @@ $articles = $stmt->fetchAll();
 </div>
 
 <script>
+// Load TinyMCE for a modern editor
+const tmceScript = document.createElement('script');
+tmceScript.src = 'https://cdn.jsdelivr.net/npm/tinymce@6.8.0/tinymce.min.js';
+tmceScript.referrerPolicy = 'origin';
+document.head.appendChild(tmceScript);
+tmceScript.onload = () => {
+    tinymce.init({ selector: '#content', height: 300, menubar: false, plugins: 'link image code lists', toolbar: 'undo redo | bold italic underline | alignleft aligncenter alignright | bullist numlist | link image | code' });
+};
+
 function showAddForm() {
     $('#modalTitle').text('إضافة مقال جديد');
     $('#articleForm')[0].reset();
@@ -121,7 +139,7 @@ function editArticle(id) {
             $('#title').val(article.title);
             $('#slug').val(article.slug);
             $('#excerpt').val(article.excerpt);
-            $('#content').val(article.content);
+            if (tinymce.get('content')) tinymce.get('content').setContent(article.content); else $('#content').val(article.content);
             $('#category').val(article.category);
             $('#badge').val(article.badge);
             $('#image_url').val(article.image_url);
@@ -133,18 +151,46 @@ function editArticle(id) {
 
 $('#articleForm').on('submit', function(e) {
     e.preventDefault();
+    // ensure we get content from TinyMCE if available
+    if (tinymce.get('content')) $('#content').val(tinymce.get('content').getContent());
     const formData = $(this).serialize();
     const action = $('#articleId').val() ? 'update' : 'create';
     
     $.post('/admin/ajax/articles.php', formData + '&action=' + action, function(response) {
         if (response.success) {
             Swal.fire('نجح', response.message, 'success');
-            location.reload();
+            $('#articleModal').hide();
+            refreshArticles();
         } else {
             Swal.fire('خطأ', response.message, 'error');
         }
     });
 });
+
+function refreshArticles(){
+    $.get('/admin/ajax/articles.php?action=list', function(response){
+        if (!response.success) return;
+        const grid = $('#articlesGrid'); grid.empty();
+        response.data.forEach(article => {
+            const card = $(`\
+                <div class="article-card">\
+                    <div class="article-category">${article.category}</div>\
+                    <div class="article-title">${article.title}</div>\
+                    <p>${(article.excerpt||'').substring(0,100)}...</p>\
+                    <div style="color: #999; font-size: 14px; margin-top: 10px;">\
+                        <i class="fas fa-user"></i> ${article.author} |\
+                        <i class="fas fa-eye"></i> ${article.reading_time || '—'} دقيقة تقديرية\
+                    </div>\
+                    <div class="article-actions">\
+                        <button class="btn-edit" onclick="editArticle(${article.id})"><i class="fas fa-edit"></i> تعديل</button>\
+                        <button class="btn-delete" onclick="deleteArticle(${article.id})"><i class="fas fa-trash"></i> حذف</button>\
+                    </div>\
+                </div>
+            `);
+            grid.append(card);
+        });
+    }, 'json');
+}
 
 function deleteArticle(id) {
     Swal.fire({
@@ -180,4 +226,24 @@ $(document).on('click', '.modal', function(e) {
         $(this).hide();
     }
 });
+
+// Preview button
+document.addEventListener('click', function(e){
+    if (e.target && e.target.id === 'previewBtn'){
+        const content = tinymce.get('content') ? tinymce.get('content').getContent() : document.getElementById('content').value;
+        const win = window.open('', '_blank');
+        win.document.write('<html><head><meta charset="utf-8"><title>معاينة</title></head><body>'+content+'</body></html>');
+    }
+});
+
+// Update reading stats live
+function updateReadingStats(){
+    const content = tinymce.get('content') ? tinymce.get('content').getContent({format:'text'}) : document.getElementById('content').value;
+    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
+    const minutes = Math.max(1, Math.ceil(words / 200));
+    document.getElementById('wordCount').textContent = words;
+    document.getElementById('readingTime').textContent = minutes;
+}
+
+setInterval(updateReadingStats, 1000);
 </script>

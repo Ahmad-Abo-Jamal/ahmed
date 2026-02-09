@@ -18,6 +18,13 @@ $response = ['success' => false, 'message' => ''];
 
 try {
     switch ($action) {
+        case 'list':
+            $stmt = $db->prepare("SELECT a.id,a.title,a.slug,a.excerpt,a.category,a.image_url,a.status,a.publish_date,a.reading_time,u.full_name as author FROM articles a JOIN admin_users u ON a.author_id = u.id ORDER BY created_at DESC LIMIT 500");
+            $stmt->execute();
+            $rows = $stmt->fetchAll();
+            echo json_encode(['success' => true, 'data' => $rows], JSON_UNESCAPED_UNICODE);
+            exit;
+
         case 'get':
             $id = intval($_GET['id'] ?? 0);
             $stmt = $db->prepare("SELECT * FROM articles WHERE id = :id");
@@ -45,10 +52,15 @@ try {
                 break;
             }
             
-            $stmt = $db->prepare("
-                INSERT INTO articles (title, slug, excerpt, content, category, badge, image_url, author_id, status, publish_date)
-                VALUES (:title, :slug, :excerpt, :content, :category, :badge, :image_url, :author_id, :status, NOW())
-            ");
+            // compute word count and reading time (approx 200 wpm)
+            $plain = strip_tags($content);
+            $words = str_word_count($plain);
+            $reading_time = max(1, intval(ceil($words / 200)));
+
+            $stmt = $db->prepare(""
+                INSERT INTO articles (title, slug, excerpt, content, category, badge, image_url, author_id, status, publish_date, word_count, reading_time)
+                VALUES (:title, :slug, :excerpt, :content, :category, :badge, :image_url, :author_id, :status, NOW(), :word_count, :reading_time)
+            """);
             
             $stmt->execute([
                 ':title' => $title,
@@ -59,7 +71,9 @@ try {
                 ':badge' => $badge,
                 ':image_url' => $image_url,
                 ':author_id' => $_SESSION['admin_id'],
-                ':status' => $status
+                ':status' => $status,
+                ':word_count' => $words,
+                ':reading_time' => $reading_time
             ]);
             
             logActivity($db, $_SESSION['admin_id'], 'article_create', "إضافة مقال: {$title}", 'articles', $db->lastInsertId());
@@ -77,12 +91,18 @@ try {
             $image_url = sanitize($_POST['image_url'] ?? '');
             $status = $_POST['status'] ?? 'draft';
             
-            $stmt = $db->prepare("
+            // compute word count and reading time
+            $plain = strip_tags($content);
+            $words = str_word_count($plain);
+            $reading_time = max(1, intval(ceil($words / 200)));
+
+            $stmt = $db->prepare(""
                 UPDATE articles SET 
                 title = :title, slug = :slug, excerpt = :excerpt, content = :content,
-                category = :category, badge = :badge, image_url = :image_url, status = :status
+                category = :category, badge = :badge, image_url = :image_url, status = :status,
+                word_count = :word_count, reading_time = :reading_time
                 WHERE id = :id
-            ");
+            """);
             
             $stmt->execute([
                 ':title' => $title,
@@ -93,6 +113,8 @@ try {
                 ':badge' => $badge,
                 ':image_url' => $image_url,
                 ':status' => $status,
+                ':word_count' => $words,
+                ':reading_time' => $reading_time,
                 ':id' => $id
             ]);
             

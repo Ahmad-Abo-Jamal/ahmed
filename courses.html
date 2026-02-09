@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>دورات - الأكاديمية الصغيرة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background: #f5f5f0; color: #2d3748; }
+        .container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+        .courses-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap:18px }
+        .course-card { background:#fff; border-radius:12px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,0.06) }
+        .course-meta { color:#6b7280; font-size:13px }
+        .progress { height:8px; background:#eee; border-radius:8px; overflow:hidden; margin-top:12px }
+        .progress > i{ display:block; height:8px; background:linear-gradient(90deg,#08137b,#4f09a7); width:0 }
+        .btn { display:inline-block; background:#08137b; color:#fff; padding:8px 12px; border-radius:8px; text-decoration:none }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>أكاديميتي الصغيرة - الدورات</h2>
+        <p>دورات قصيرة مركزة مع عرض مدة القراءة وخيارات المتابعة.</p>
+        <div id="coursesGrid" class="courses-grid"></div>
+    </div>
+
+    <script>
+        async function loadCourses() {
+            const res = await fetch('/api/articles.php');
+            const data = await res.json();
+            if (!data.success) return;
+            const items = data.articles.filter(a => a.category === 'course');
+            const grid = document.getElementById('coursesGrid'); grid.innerHTML = '';
+            items.forEach(a => {
+                const card = document.createElement('div'); card.className = 'course-card';
+                const stored = localStorage.getItem('course_progress_' + a.id) || 0;
+                card.innerHTML = `
+                    <h3 style="margin:0">${a.title}</h3>
+                    <div class="course-meta">${a.publish_date} • ${a.reading_time || '—'} دقيقة تقديرية</div>
+                    <p style="margin-top:10px;color:#374151">${a.excerpt || ''}</p>
+                    <div class="progress"><i style="width:${stored}%"></i></div>
+                    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-start">
+                        <a class="btn" href="#" data-id="${a.id}">ابدأ الدرس</a>
+                        <a class="btn" href="#" onclick="localStorage.removeItem('course_progress_${a.id}');location.reload();return false;">إعادة التتبع</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            document.querySelectorAll('.btn[data-id]').forEach(b => b.addEventListener('click', async function(e){
+                e.preventDefault();
+                const id = this.getAttribute('data-id');
+                const res = await fetch('/api/articles.php?full=1&id=' + id);
+                const data = await res.json();
+                if (!data.success) return alert('خطأ');
+                const content = data.article.content;
+                // open simple reader window
+                const win = window.open('', '_blank');
+                win.document.write('<html><head><title>'+data.article.title+'</title></head><body>'+content+'<script>let p=0;function tick(){p=Math.min(100,p+1);localStorage.setItem("course_progress_'+id+'",p);document.getElementById("prog").style.width=p+"%";if(p<100)setTimeout(tick,1000);}window.onload=function(){document.body.insertAdjacentHTML("beforeend","<div style=\"position:fixed;bottom:10px;left:10px;right:10px;\"><div style=\"height:8px;background:#eee;border-radius:8px;\"><i id=\"prog\" style=\"display:block;height:8px;background:linear-gradient(90deg,#08137b,#4f09a7);width:'+ (localStorage.getItem("course_progress_'+id+'")||0) +'%\"></i></div></div>");tick();};<\/script></body></html>');
+            }));
+        }
+        loadCourses();
+    </script>
+</body>
+</html>
