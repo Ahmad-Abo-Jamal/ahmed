@@ -134,7 +134,7 @@ function deleteService(id) {
         cancelButtonText: 'إلغاء'
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post('ajax/services.php', { action: 'delete', id: id }, function(response) {
+            $.post('/admin/ajax/services.php', { action: 'delete', id: id }, function(response) {
                 if (response.success) {
                     Swal.fire('تم', 'تم حذف الخدمة', 'success');
                     location.reload();
@@ -143,4 +143,9 @@ function deleteService(id) {
         }
     });
 }
-</script>
+// Close modal when clicking outside (on the dark background)
+$(document).on('click', '.modal', function(e) {
+    if (e.target === this) {
+        $(this).hide();
+    }
+});</script>

@@ -22,10 +22,7 @@ try {
         WHERE is_public = TRUE
     ");
     
-    $settings = [];
-    while ($row = $stmt->fetch()) {
-        $settings[$row['setting_key']] = $row['setting_value'];
-    }
+    $settings = $stmt->fetchAll();
     
     echo json_encode([
         'success' => true,

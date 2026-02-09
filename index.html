@@ -892,54 +892,8 @@
             <p>نقدم مجموعة شاملة من الخدمات الاحترافية لدعم نمو أعمالك</p>
         </div>
 
-        <div class="services-grid">
-            <div class="service-card fade-in-up">
-                <div class="service-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3>استراتيجيات التسويق</h3>
-                <p>خطط تسويقية متكاملة مبنية على تحليل عميق للسوق والمنافسين</p>
-            </div>
-
-            <div class="service-card fade-in-up">
-                <div class="service-icon">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <h3>إدارة الحملات الإعلانية</h3>
-                <p>حملات إعلانية احترافية عبر منصات متعددة مع تحسين العائد على الاستثمار</p>
-            </div>
-
-            <div class="service-card fade-in-up">
-                <div class="service-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3>إدارة السوشيال ميديا</h3>
-                <p>بناء وإدارة حضور قوي على منصات التواصل الاجتماعي</p>
-            </div>
-
-            <div class="service-card fade-in-up">
-                <div class="service-icon">
-                    <i class="fas fa-graduation-cap"></i>
-                </div>
-                <h3>التدريب والاستشارات</h3>
-                <p>برامج تدريبية واستشارات متخصصة للشركات والأفراد</p>
-            </div>
-
-            <div class="service-card fade-in-up">
-                <div class="service-icon">
-                    <i class="fas fa-palette"></i>
-                </div>
-                <h3>التصميم والإنتاج</h3>
-                <p>تصميم جرافيك احترافي وإنتاج محتوى بصري عالي الجودة</p>
-            </div>
-
-            <div class="service-card fade-in-up">
-                <div class="service-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>الأمن السيبراني</h3>
-                <p>حلول أمنية شاملة لحماية أعمالك الرقمية</p>
-            </div>
+        <div class="services-grid" id="servicesGrid">
+            <!-- Services will be loaded dynamically from /api/services.php -->
         </div>
     </section>
 
@@ -1361,6 +1315,143 @@
 
         // Run on load
         document.addEventListener('DOMContentLoaded', loadArticles);
+    </script>
+    <script>
+        // Load services from API and render into the services grid
+        async function loadServices() {
+            const grid = document.getElementById('servicesGrid');
+            if (!grid) return;
+
+            try {
+                const res = await fetch('/api/services.php');
+                const data = await res.json();
+                if (!data.success || !data.services || data.services.length === 0) {
+                    grid.innerHTML = '<p style="text-align: center; color: #999; padding: 40px; grid-column: 1 / -1;">لا توجد خدمات متاحة حالياً</p>';
+                    return;
+                }
+
+                grid.innerHTML = '';
+                data.services.forEach(service => {
+                    const card = document.createElement('div');
+                    card.className = 'service-card fade-in-up';
+
+                    // Map icon class names
+                    const iconMap = {
+                        'fa-chart-line': 'fas fa-chart-line',
+                        'fa-bullhorn': 'fas fa-bullhorn',
+                        'fa-users': 'fas fa-users',
+                        'fa-graduation-cap': 'fas fa-graduation-cap',
+                        'fa-palette': 'fas fa-palette',
+                        'fa-shield-alt': 'fas fa-shield-alt'
+                    };
+
+                    const iconClass = service.icon || 'fa-star';
+                    const icon = iconMap[iconClass] ? iconMap[iconClass] : `fas ${iconClass}`;
+
+                    card.innerHTML = `
+                        <div class="service-icon">
+                            <i class="${icon}"></i>
+                        </div>
+                        <h3>${escapeHtml(service.title)}</h3>
+                        <p>${escapeHtml(service.description)}</p>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                // Trigger fade-in animations for newly added elements
+                document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+            } catch (e) {
+                console.error('Failed to load services', e);
+                grid.innerHTML = '<p style="text-align: center; color: #999; padding: 40px; grid-column: 1 / -1;">عذراً، حدث خطأ في تحميل الخدمات</p>';
+            }
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', loadServices);
+    </script>
+    <script>
+        // Load contact info (email, phone) from settings API and update footer + contact section
+        async function loadContactInfo() {
+            try {
+                const res = await fetch('/api/settings.php');
+                const data = await res.json();
+                if (!data.success || !data.settings) return;
+
+                // Create a map of settings
+                const settings = {};
+                data.settings.forEach(item => {
+                    settings[item.setting_key] = item.setting_value;
+                });
+
+                const email = settings.site_email || 'info@example.com';
+                const phone = settings.site_phone || '+966 XXX XXXX';
+                const whatsapp = settings.whatsapp_number || '+966XXXXXXXXX';
+                const facebook = settings.facebook_url || '#';
+                const instagram = settings.instagram_url || '#';
+                const linkedin = settings.linkedin_url || '#';
+                const youtube = settings.youtube_url || '#';
+                const twitter = settings.twitter_url || '#';
+
+                // Update contact section
+                const emailLink = document.querySelector('.contact-item:nth-child(1) p a');
+                const phoneLink = document.querySelector('.contact-item:nth-child(2) p a');
+                
+                if (emailLink) emailLink.href = `mailto:${email}`;
+                if (emailLink) emailLink.innerText = email;
+                
+                if (phoneLink) phoneLink.href = `tel:${phone}`;
+                if (phoneLink) phoneLink.innerText = phone;
+
+                // Update footer contact section
+                const footerEmailLink = document.querySelector('.footer-section:nth-child(4) .footer-links li:nth-child(1) a');
+                const footerPhoneLink = document.querySelector('.footer-section:nth-child(4) .footer-links li:nth-child(2) a');
+                
+                if (footerEmailLink) {
+                    footerEmailLink.href = `mailto:${email}`;
+                    footerEmailLink.innerHTML = `<i class="fas fa-envelope"></i> ${escapeHtml(email)}`;
+                }
+                
+                if (footerPhoneLink) {
+                    footerPhoneLink.href = `tel:${phone}`;
+                    footerPhoneLink.innerHTML = `<i class="fas fa-phone"></i> ${escapeHtml(phone)}`;
+                }
+
+                // Update WhatsApp button
+                const whatsappBtn = document.querySelector('.whatsapp-float');
+                if (whatsappBtn) whatsappBtn.href = `https://wa.me/${whatsapp.replace(/[^\d+]/g, '')}`;
+
+                // Update social links (contact section)
+                const socialLinks = document.querySelectorAll('.contact-info .social-links a');
+                const socialMap = {
+                    0: facebook,
+                    1: instagram,
+                    2: linkedin,
+                    3: youtube,
+                    4: twitter
+                };
+                
+                socialLinks.forEach((link, idx) => {
+                    if (socialMap[idx] && socialMap[idx] !== '#' && socialMap[idx] !== '') {
+                        link.href = socialMap[idx];
+                    }
+                });
+
+                // Update footer social links
+                const footerSocialLinks = document.querySelectorAll('.footer-about .social-links a');
+                footerSocialLinks.forEach((link, idx) => {
+                    if (socialMap[idx] && socialMap[idx] !== '#' && socialMap[idx] !== '') {
+                        link.href = socialMap[idx];
+                    }
+                });
+
+            } catch (e) {
+                console.error('Failed to load contact settings', e);
+            }
+        }
+
+        // Run on load
+        document.addEventListener('DOMContentLoaded', loadContactInfo);
+
     </script>
 </body>
 

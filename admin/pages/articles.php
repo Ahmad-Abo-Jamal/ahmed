@@ -173,4 +173,11 @@ $('#title').on('input', function() {
         $('#slug').val(slug);
     }
 });
+
+// Close modal when clicking outside (on the dark background)
+$(document).on('click', '.modal', function(e) {
+    if (e.target === this) {
+        $(this).hide();
+    }
+});
 </script>
