@@ -43,15 +43,15 @@ try {
             $stmt->execute([':id' => $_SESSION['admin_id']]);
             $admin = $stmt->fetch();
             
-            // Verify current password using password_verify()
-            if (!verifyPassword($current, $admin['password'])) {
+            // Verify current password (plain text comparison)
+            if ($current !== $admin['password']) {
                 $response['message'] = 'كلمة المرور الحالية غير صحيحة';
                 break;
             }
             
-            // Update password with hashed version
+            // Update password (plain text)
             $stmt = $db->prepare("UPDATE admin_users SET password = :password WHERE id = :id");
-            $stmt->execute([':password' => hashPassword($new), ':id' => $_SESSION['admin_id']]);
+            $stmt->execute([':password' => $new, ':id' => $_SESSION['admin_id']]);
             
             logActivity($db, $_SESSION['admin_id'], 'password_change', 'تغيير كلمة المرور');
             $response = ['success' => true, 'message' => 'تم تغيير كلمة المرور بنجاح'];

@@ -1,6 +1,6 @@
 -- ===================================
 -- Enhanced Admin Dashboard Schema
--- Secure Hashed Password Version
+-- Plain Text Password Version
 -- ===================================
 
 -- Drop existing tables
@@ -33,10 +33,8 @@ CREATE TABLE admin_users (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Default admin account (CHANGE PASSWORD AFTER FIRST LOGIN)
--- Password: Admin@123456 (hashed with bcrypt)
--- To generate new password hash in PHP: password_hash('yourpassword', PASSWORD_BCRYPT, ['cost' => 12])
 INSERT INTO admin_users (username, email, password, full_name, role, status) 
-VALUES ('admin', 'admin@example.com', '$2y$12$8YPp4EzlYm0K6D5Z0F9e6OkW5J1E3A2B4C5D6E7F8G9H0I1J2K3L4M5', 'المسؤول الرئيسي', 'admin', 'active');
+VALUES ('admin', 'admin@example.com', 'Admin@123456', 'المسؤول الرئيسي', 'admin', 'active');
 
 -- ===================================
 -- Contact Messages Table

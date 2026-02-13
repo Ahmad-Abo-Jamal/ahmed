@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $remaining = ceil((strtotime($user['locked_until']) - time()) / 60);
                     $error = "الحساب مقفل مؤقتاً. يرجى المحاولة بعد {$remaining} دقيقة";
                 } else {
-                    // Verify password using password_verify()
-                    if (verifyPassword($password, $user['password'])) {
+                    // Plain text password comparison
+                    if ($password === $user['password']) {
                         // Reset login attempts
                         $stmt = $db->prepare("UPDATE admin_users SET login_attempts = 0, locked_until = NULL, last_login = NOW() WHERE id = :id");
                         $stmt->execute([':id' => $user['id']]);
