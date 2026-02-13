@@ -1,15 +1,4 @@
 <?php
-/**
- * Newsletter Admin Page - Send & Manage Newsletter Campaigns
- */
-
-require_once '../../config.php';
-
-if (!isAdmin()) {
-    header('Location: login.php');
-    exit;
-}
-
 // Get subscribers stats
 $subscribersStmt = $db->prepare("SELECT COUNT(*) as total, SUM(CASE WHEN is_confirmed = TRUE THEN 1 ELSE 0 END) as confirmed FROM newsletter_subscribers WHERE is_active = TRUE");
 $subscribersStmt->execute();

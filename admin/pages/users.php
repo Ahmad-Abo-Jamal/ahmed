@@ -1,15 +1,4 @@
 <?php
-/**
- * Users Management Admin Page
- */
-
-require_once '../../config.php';
-
-if (!isAdmin()) {
-    header('Location: login.php');
-    exit;
-}
-
 // Get all users
 $usersStmt = $db->prepare("SELECT * FROM users ORDER BY created_at DESC LIMIT 500");
 $usersStmt->execute();

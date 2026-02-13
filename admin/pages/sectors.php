@@ -266,7 +266,9 @@ $sectors = $db->query("SELECT * FROM sectors ORDER BY display_order ASC")->fetch
 
     <!-- Sector Details Tabs -->
     <?php foreach ($sectors as $sector): 
-        $brands = $db->query("SELECT * FROM brands WHERE sector_id = ? ORDER BY display_order ASC", [$sector['id']])->fetchAll();
+        $brandsStmt = $db->prepare("SELECT * FROM brands WHERE sector_id = ? ORDER BY display_order ASC");
+        $brandsStmt->execute([$sector['id']]);
+        $brands = $brandsStmt->fetchAll();
     ?>
         <div class="tab-content" id="sector-<?php echo $sector['id']; ?>">
             <div style="margin-bottom: 20px;">

@@ -1,15 +1,4 @@
 <?php
-/**
- * Dictionary Admin Page - Manage Arabic Words & Definitions
- */
-
-require_once '../../config.php';
-
-if (!isAdmin()) {
-    header('Location: login.php');
-    exit;
-}
-
 // Get dictionary words
 $wordsStmt = $db->prepare("SELECT id, word_ar, category, difficulty_level, usage_count, is_featured, created_at FROM dictionary ORDER BY created_at DESC LIMIT 500");
 $wordsStmt->execute();

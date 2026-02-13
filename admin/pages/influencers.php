@@ -1,15 +1,4 @@
 <?php
-/**
- * Influencers Admin Page - Manage Influencers & Collaborations
- */
-
-require_once '../../config.php';
-
-if (!isAdmin()) {
-    header('Location: login.php');
-    exit;
-}
-
 // Get influencers
 $influencersStmt = $db->prepare("SELECT * FROM influencers ORDER BY is_featured DESC, follower_count DESC LIMIT 500");
 $influencersStmt->execute();
