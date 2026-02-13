@@ -37,50 +37,12 @@ try {
             "ALTER TABLE contact_messages MODIFY COLUMN admin_reply LONGTEXT NULL",
             "CREATE TABLE IF NOT EXISTS message_conversations (id INT PRIMARY KEY AUTO_INCREMENT, thread_id INT UNIQUE NOT NULL, contact_email VARCHAR(100) NOT NULL, contact_name VARCHAR(100) NOT NULL, subject VARCHAR(255) NOT NULL, status ENUM('open', 'waiting', 'resolved', 'closed') DEFAULT 'open', assigned_to INT NULL, priority ENUM('low', 'normal', 'high', 'urgent') DEFAULT 'normal', last_message_at DATETIME NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX idx_thread (thread_id), INDEX idx_status (status), INDEX idx_assigned (assigned_to), INDEX idx_created (created_at), FOREIGN KEY (assigned_to) REFERENCES admin_users(id) ON DELETE SET NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         ],
-            "CREATE TABLE IF NOT EXISTS sectors (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                name VARCHAR(255) NOT NULL,
-                name_ar VARCHAR(255) NOT NULL,
-                icon VARCHAR(100) DEFAULT 'fa-briefcase',
-                description TEXT,
-                display_order INT DEFAULT 0,
-                status ENUM('active', 'inactive') DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_status (status),
-                INDEX idx_order (display_order)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+        'sectors_brands' => [
+            "CREATE TABLE IF NOT EXISTS sectors (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255) NOT NULL, name_ar VARCHAR(255) NOT NULL, icon VARCHAR(100) DEFAULT 'fa-briefcase', description TEXT, display_order INT DEFAULT 0, status ENUM('active', 'inactive') DEFAULT 'active', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX idx_status (status), INDEX idx_order (display_order)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
             
-            "CREATE TABLE IF NOT EXISTS brands (
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                sector_id INT NOT NULL,
-                name VARCHAR(255) NOT NULL,
-                name_ar VARCHAR(255) NOT NULL,
-                category VARCHAR(255),
-                category_ar VARCHAR(255),
-                description TEXT,
-                description_ar TEXT,
-                icon VARCHAR(100) DEFAULT 'fa-star',
-                logo_url VARCHAR(500),
-                logo_color VARCHAR(7) DEFAULT '#08137b',
-                logo_color_secondary VARCHAR(7) DEFAULT '#4f09a7',
-                display_order INT DEFAULT 0,
-                status ENUM('active', 'inactive') DEFAULT 'active',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                INDEX idx_sector (sector_id),
-                INDEX idx_status (status),
-                INDEX idx_order (display_order),
-                FOREIGN KEY (sector_id) REFERENCES sectors(id) ON DELETE CASCADE
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+            "CREATE TABLE IF NOT EXISTS brands (id INT PRIMARY KEY AUTO_INCREMENT, sector_id INT NOT NULL, name VARCHAR(255) NOT NULL, name_ar VARCHAR(255) NOT NULL, category VARCHAR(255), category_ar VARCHAR(255), description TEXT, description_ar TEXT, icon VARCHAR(100) DEFAULT 'fa-star', logo_url VARCHAR(500), logo_color VARCHAR(7) DEFAULT '#08137b', logo_color_secondary VARCHAR(7) DEFAULT '#4f09a7', display_order INT DEFAULT 0, status ENUM('active', 'inactive') DEFAULT 'active', created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, INDEX idx_sector (sector_id), INDEX idx_status (status), INDEX idx_order (display_order), FOREIGN KEY (sector_id) REFERENCES sectors(id) ON DELETE CASCADE) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
             
-            "INSERT IGNORE INTO sectors (name, name_ar, icon, description, display_order, status) VALUES
-            ('Finance', 'المالية والبنوك', 'fa-university', 'Banking and Financial Services', 1, 'active'),
-            ('Technology', 'التكنولوجيا', 'fa-laptop', 'Technology and Software Solutions', 2, 'active'),
-            ('Retail', 'التجزئة', 'fa-shopping-bag', 'Retail and E-commerce', 3, 'active'),
-            ('Healthcare', 'الصحة', 'fa-hospital', 'Healthcare and Medical Services', 4, 'active'),
-            ('Energy', 'الطاقة', 'fa-bolt', 'Energy and Utilities', 5, 'active'),
-            ('Media', 'الإعلام', 'fa-tv', 'Media and Broadcasting', 6, 'active')",
+            "INSERT IGNORE INTO sectors (name, name_ar, icon, description, display_order, status) VALUES ('Finance', 'المالية والبنوك', 'fa-university', 'Banking and Financial Services', 1, 'active'), ('Technology', 'التكنولوجيا', 'fa-laptop', 'Technology and Software Solutions', 2, 'active'), ('Retail', 'التجزئة', 'fa-shopping-bag', 'Retail and E-commerce', 3, 'active'), ('Healthcare', 'الصحة', 'fa-hospital', 'Healthcare and Medical Services', 4, 'active'), ('Energy', 'الطاقة', 'fa-bolt', 'Energy and Utilities', 5, 'active'), ('Media', 'الإعلام', 'fa-tv', 'Media and Broadcasting', 6, 'active')"
         ]
     ];
 
