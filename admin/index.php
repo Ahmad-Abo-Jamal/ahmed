@@ -264,6 +264,34 @@ if (isset($_GET['logout'])) {
                     <i class="fas fa-envelope-open-text"></i>
                     <span>النشرة البريدية</span>
                 </a>
+
+                <!-- Advanced Features Section -->
+                <div style="padding: 15px 0; color: rgba(255,255,255,0.5); font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;">الميزات المتقدمة</div>
+
+                <a href="?page=products" class="menu-item <?php echo $page === 'products' ? 'active' : ''; ?>">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>المنتجات</span>
+                </a>
+
+                <a href="?page=email_templates" class="menu-item <?php echo $page === 'email_templates' ? 'active' : ''; ?>">
+                    <i class="fas fa-envelope"></i>
+                    <span>قوالب البريد</span>
+                </a>
+
+                <a href="?page=analytics" class="menu-item <?php echo $page === 'analytics' ? 'active' : ''; ?>">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>التحليلات</span>
+                </a>
+
+                <a href="?page=reviews" class="menu-item <?php echo $page === 'reviews' ? 'active' : ''; ?>">
+                    <i class="fas fa-star"></i>
+                    <span>التقييمات</span>
+                </a>
+
+                <a href="?page=tags" class="menu-item <?php echo $page === 'tags' ? 'active' : ''; ?>">
+                    <i class="fas fa-tags"></i>
+                    <span>الوسوم والفئات</span>
+                </a>
                 
                 <a href="?page=settings" class="menu-item <?php echo $page === 'settings' ? 'active' : ''; ?>">
                     <i class="fas fa-cog"></i>
@@ -298,6 +326,11 @@ if (isset($_GET['logout'])) {
                             'influencers' => 'إدارة المؤثرين',
                             'users' => 'إدارة المستخدمين',
                             'newsletter' => 'النشرة البريدية',
+                            'products' => 'إدارة المنتجات',
+                            'email_templates' => 'قوالب البريد الإلكتروني',
+                            'analytics' => 'لوحة التحليلات',
+                            'reviews' => 'إدارة التقييمات والمراجعات',
+                            'tags' => 'الوسوم والفئات',
                             'settings' => 'الإعدادات',
                             'activity' => 'سجل النشاطات'
                         ];
