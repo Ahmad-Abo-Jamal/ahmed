@@ -290,24 +290,169 @@ $pending_contacts = $contactsStmt->fetch()['count'];
         <?php endif; ?>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.0/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.0/sweetalert2.min.css">
+
+    <!-- Add/Edit Influencer Modal -->
+    <div id="influencerModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+            <h2 id="infModalTitle">مؤثر جديد</h2>
+            <form id="influencerForm" style="margin-top: 20px;">
+                <input type="hidden" id="influencerId" name="id" value="">
+                
+                <div style="margin-bottom: 15px;">
+                    <label>الاسم بالعربية *</label>
+                    <input type="text" id="nameAr" name="name_ar" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>الاسم بالإنجليزية</label>
+                    <input type="text" id="nameEn" name="name_en" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>الفئة</label>
+                    <input type="text" id="category" name="category" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>المنصة *</label>
+                    <select id="platform" name="platform" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                        <option value="">اختر المنصة</option>
+                        <option value="instagram">Instagram</option>
+                        <option value="youtube">YouTube</option>
+                        <option value="tiktok">TikTok</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>رابط المنصة *</label>
+                    <input type="url" id="platformUrl" name="platform_url" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>عدد المتابعين</label>
+                    <input type="number" id="followerCount" name="follower_count" value="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>معدل التفاعل (%)</label>
+                    <input type="number" id="engagementRate" name="engagement_rate" step="0.1" value="0" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>
+                        <input type="checkbox" id="isFeatured" name="is_featured"> مؤثر مميز
+                    </label>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>حالة التحقق</label>
+                    <select id="verificationStatus" name="verification_status" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                        <option value="unverified">غير موثق</option>
+                        <option value="verified">موثق</option>
+                        <option value="premium">بريميوم</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="document.getElementById('influencerModal').style.display='none'" style="padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer;">إلغاء</button>
+                    <button type="submit" style="padding: 10px 20px; background: #08137b; color: white; border: none; border-radius: 4px; cursor: pointer;">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        let isEditMode = false;
+
         function openAddModal() {
-            alert('سيتم فتح نموذج إضافة مؤثر جديد قريباً');
+            isEditMode = false;
+            document.getElementById('infModalTitle').innerHTML = 'مؤثر جديد';
+            document.getElementById('influencerForm').reset();
+            document.getElementById('influencerId').value = '';
+            document.getElementById('influencerModal').style.display = 'flex';
         }
 
         function editInfluencer(id) {
-            alert('سيتم فتح صفحة التعديل قريباً');
+            isEditMode = true;
+            document.getElementById('infModalTitle').innerHTML = 'تعديل المؤثر';
+            
+            fetch(`../ajax/influencers.php?action=get&id=${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('influencerId').value = data.data.id;
+                        document.getElementById('nameAr').value = data.data.name_ar;
+                        document.getElementById('nameEn').value = data.data.name_en || '';
+                        document.getElementById('category').value = data.data.category || '';
+                        document.getElementById('platform').value = data.data.platform;
+                        document.getElementById('platformUrl').value = data.data.platform_url;
+                        document.getElementById('followerCount').value = data.data.follower_count || 0;
+                        document.getElementById('engagementRate').value = data.data.engagement_rate || 0;
+                        document.getElementById('isFeatured').checked = data.data.is_featured === 1;
+                        document.getElementById('verificationStatus').value = data.data.verification_status;
+                        document.getElementById('influencerModal').style.display = 'flex';
+                    }
+                });
         }
 
         function deleteInfluencer(id, name) {
-            if (confirm(`هل تريد حذف المؤثر "${name}"?`)) {
-                alert('تم الحذف بنجاح');
-            }
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: `سيتم حذف المؤثر "${name}"`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#08137b',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'نعم، احذفه',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('../ajax/influencers.php?action=delete', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: `id=${id}`
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('تم!', data.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('خطأ', data.message, 'error');
+                        }
+                    });
+                }
+            });
         }
 
         function goToContacts() {
-            alert('سيتم فتح صفحة طلبات التواصل قريباً');
+            window.location.href = 'messages.php?type=influencer_contact';
         }
+
+        document.getElementById('influencerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const action = isEditMode ? 'edit' : 'add';
+            formData.append('action', action);
+            
+            const params = new URLSearchParams(formData);
+            
+            fetch('../ajax/influencers.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: params
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('تم!', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -5,7 +5,7 @@ requireAdmin();
 header('Content-Type: application/json');
 
 try {
-    $action = $_POST['action'] ?? '';
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
     
     switch($action) {
         case 'add_brand':
