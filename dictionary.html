@@ -442,24 +442,10 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/static/css/site-layout.css">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-shield-alt"></i>
-                    أحمد أبو المجد
-                </a>
-                <nav class="nav-back">
-                    <a href="index.html"><i class="fas fa-home"></i> الرئيسية</a>
-                    <a href="articles.html"><i class="fas fa-newspaper"></i> الأخبار</a>
-                    <a href="courses.html"><i class="fas fa-graduation-cap"></i> الدورات</a>
-                </nav>
-            </div>
-        </div>
-    </header>
+    <div id="site-header"></div>
 
     <!-- Hero Section -->
     <section class="hero">
@@ -815,5 +801,7 @@
         // Load on page load
         loadDictionary();
     </script>
+    <div id="site-footer"></div>
+    <script src="/static/js/site-layout.js"></script>
 </body>
 </html>
