@@ -36,7 +36,12 @@
     }, true);
 
     function isClickable(element) {
-      return element.matches('a, button, .btn, .carousel-btn, .sector-tab, input[type="submit"], input[type="button"], .read-more, .carousel-dot, input, textarea, select, [onclick], .clickable');
+      if (!element || element.nodeType !== 1) return false;
+      try {
+        return typeof element.matches === 'function' && element.matches('a, button, .btn, .carousel-btn, .sector-tab, input[type="submit"], input[type="button"], .read-more, .carousel-dot, input, textarea, select, [onclick], .clickable');
+      } catch (e) {
+        return false;
+      }
     }
 
     // Hide cursor on mouse leave

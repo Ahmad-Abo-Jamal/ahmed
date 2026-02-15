@@ -644,7 +644,7 @@
 
         // Show word detail modal
         function showWordDetail(wordId) {
-            const word = allWords.find(w => w.id === wordId);
+            const word = allWords.find(w => String(w.id) === String(wordId));
             if (!word) {
                 console.error('Word not found:', wordId);
                 return;

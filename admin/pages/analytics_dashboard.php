@@ -217,7 +217,7 @@ $summary = $summaryStmt->fetch();
             const days = document.getElementById('daysFilter').value;
 
             // Load summary
-            fetch(`../ajax/analytics.php?action=summary`)
+            fetch(`ajax/analytics.php?action=summary`)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
@@ -229,7 +229,7 @@ $summary = $summaryStmt->fetch();
                 });
 
             // Load pages
-            fetch(`../ajax/analytics.php?action=page_stats`)
+            fetch(`ajax/analytics.php?action=page_stats`)
                 .then(r => r.json())
                 .then(data => {
                     const tbody = document.getElementById('pagesBody');
@@ -250,7 +250,7 @@ $summary = $summaryStmt->fetch();
                 });
 
             // Load devices
-            fetch(`../ajax/analytics.php?action=device_stats`)
+            fetch(`ajax/analytics.php?action=device_stats`)
                 .then(r => r.json())
                 .then(data => {
                     const tbody = document.getElementById('devicesBody');
@@ -272,7 +272,7 @@ $summary = $summaryStmt->fetch();
                 });
 
             // Load referrers
-            fetch(`../ajax/analytics.php?action=top_referrers`)
+            fetch(`ajax/analytics.php?action=top_referrers`)
                 .then(r => r.json())
                 .then(data => {
                     const tbody = document.getElementById('referrersBody');

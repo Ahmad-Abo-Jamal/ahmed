@@ -378,7 +378,7 @@ $pending_contacts = $contactsStmt->fetch()['count'];
             isEditMode = true;
             document.getElementById('infModalTitle').innerHTML = 'تعديل المؤثر';
             
-            fetch(`../ajax/influencers.php?action=get&id=${id}`)
+            fetch(`ajax/influencers.php?action=get&id=${id}`)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
@@ -409,7 +409,7 @@ $pending_contacts = $contactsStmt->fetch()['count'];
                 cancelButtonText: 'إلغاء'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('../ajax/influencers.php?action=delete', {
+                    fetch('ajax/influencers.php?action=delete', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: `id=${id}`
@@ -439,7 +439,7 @@ $pending_contacts = $contactsStmt->fetch()['count'];
             
             const params = new URLSearchParams(formData);
             
-            fetch('../ajax/influencers.php', {
+                    fetch('ajax/influencers.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: params

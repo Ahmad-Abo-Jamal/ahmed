@@ -352,7 +352,7 @@ $campaigns = $campaignsStmt->fetchAll();
             isEditMode = true;
             document.getElementById('campaignModalTitle').innerHTML = 'تعديل الحملة';
             
-            fetch(`../ajax/newsletter.php?action=get_campaign&id=${id}`)
+            fetch(`ajax/newsletter.php?action=get_campaign&id=${id}`)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
@@ -366,7 +366,7 @@ $campaigns = $campaignsStmt->fetchAll();
         }
 
         function viewCampaign(id) {
-            fetch(`../ajax/newsletter.php?action=get_campaign&id=${id}`)
+            fetch(`ajax/newsletter.php?action=get_campaign&id=${id}`)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
@@ -398,7 +398,7 @@ $campaigns = $campaignsStmt->fetchAll();
                 cancelButtonText: 'إلغاء'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch('../ajax/newsletter.php?action=send_campaign', {
+                    fetch('ajax/newsletter.php?action=send_campaign', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                         body: `id=${id}`
@@ -427,7 +427,7 @@ $campaigns = $campaignsStmt->fetchAll();
                 showConfirmButton: true,
                 confirmButtonColor: '#08137b'
             }).then(() => {
-                fetch('../ajax/newsletter.php?action=subscribers_list')
+                fetch('ajax/newsletter.php?action=subscribers_list')
                     .then(r => r.json())
                     .then(data => {
                         if (data.success && data.data.length > 0) {
@@ -462,7 +462,7 @@ $campaigns = $campaignsStmt->fetchAll();
             
             const params = new URLSearchParams(formData);
             
-            fetch('../ajax/newsletter.php', {
+            fetch('ajax/newsletter.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: params
@@ -485,7 +485,7 @@ $campaigns = $campaignsStmt->fetchAll();
             
             const params = new URLSearchParams(formData);
             
-            fetch('../ajax/newsletter.php', {
+            fetch('ajax/newsletter.php', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                 body: params
