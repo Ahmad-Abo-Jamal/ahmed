@@ -240,6 +240,7 @@ CREATE TABLE contact_messages (
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
     subject VARCHAR(200) NOT NULL,
+    service VARCHAR(100),
     message TEXT NOT NULL,
     status ENUM('new', 'read', 'replied', 'archived') DEFAULT 'new',
     priority ENUM('low', 'normal', 'high', 'urgent') DEFAULT 'normal',
