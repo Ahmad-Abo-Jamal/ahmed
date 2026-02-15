@@ -324,16 +324,69 @@
             line-height: 1.8;
         }
 
-        /* News Grid */
+        /* News Carousel */
         .news-section {
             background: var(--neutral-light);
         }
 
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
+        .news-carousel-wrapper {
+            position: relative;
             margin-top: 50px;
+        }
+
+        .news-carousel-container {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-gold) transparent;
+        }
+
+        .news-carousel-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .news-carousel-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .news-carousel-container::-webkit-scrollbar-thumb {
+            background: var(--accent-gold);
+            border-radius: 10px;
+        }
+
+        .news-carousel-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-blue);
+        }
+
+        .news-grid {
+            display: flex;
+            gap: 30px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 20px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-gold) transparent;
+            margin-top: 50px;
+        }
+
+        .news-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .news-grid::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .news-grid::-webkit-scrollbar-thumb {
+            background: var(--accent-gold);
+            border-radius: 10px;
+        }
+
+        .news-grid::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-blue);
         }
 
         .news-card {
@@ -343,11 +396,97 @@
             box-shadow: var(--shadow-sm);
             transition: var(--transition);
             animation: fadeIn 0.6s ease;
+            flex: 0 0 calc(33.333% - 20px);
+            min-width: 350px;
+            max-width: 400px;
+            cursor: pointer;
         }
 
         .news-card:hover {
             transform: translateY(-5px);
             box-shadow: var(--shadow-md);
+        }
+
+        /* Carousel Controls */
+        .carousel-controls {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 -10px;
+            z-index: 10;
+        }
+
+        .carousel-btn {
+            pointer-events: auto;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+        }
+
+        .carousel-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .carousel-btn:active {
+            transform: scale(0.95);
+        }
+
+        .carousel-btn.prev {
+            margin-left: -10px;
+        }
+
+        .carousel-btn.next {
+            margin-right: -10px;
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(8, 19, 123, 0.3);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .carousel-dot.active {
+            background: var(--primary-blue);
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .carousel-dot:hover {
+            background: var(--primary-blue);
+        }
+
+        .view-all-articles {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .view-all-articles .btn {
+            margin: 0 auto;
         }
 
         .news-image {
@@ -1050,6 +1189,18 @@
             .nav-container {
                 padding: 0 30px;
             }
+
+            .carousel-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+
+            .news-card {
+                flex: 0 0 calc(50% - 15px);
+                min-width: 320px;
+                max-width: 100%;
+            }
         }
 
         @media (max-width: 768px) {
@@ -1116,9 +1267,34 @@
                 font-size: 2.2rem;
             }
 
-            .services-grid,
-            .news-grid {
+            .services-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .news-card {
+                flex: 0 0 calc(100% - 20px);
+                min-width: 100%;
+                max-width: none;
+            }
+
+            .carousel-controls {
+                display: none;
+            }
+
+            .carousel-indicators {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-top: 20px;
+            }
+
+            .carousel-dot {
+                width: 8px;
+                height: 8px;
+            }
+
+            .carousel-dot.active {
+                width: 24px;
             }
 
             .contact-container {
@@ -1306,11 +1482,28 @@
                 <h2>آخر الأخبار والمقالات</h2>
                 <p>تابع أحدث التحديثات والمقالات المتخصصة</p>
             </div>
-            <div class="news-grid" id="newsGrid">
-                <div class="empty-state">
-                    <i class="fas fa-spinner spinning"></i>
-                    <p>جاري تحميل المقالات...</p>
+            <div class="news-carousel-wrapper">
+                <div class="news-grid" id="newsGrid">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner spinning"></i>
+                        <p>جاري تحميل المقالات...</p>
+                    </div>
                 </div>
+                <div class="carousel-controls">
+                    <button class="carousel-btn prev" id="newsPrevBtn" title="المقالة السابقة">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="carousel-btn next" id="newsNextBtn" title="المقالة التالية">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="carousel-indicators" id="newsIndicators"></div>
+            <div class="view-all-articles">
+                <a href="articles.html" class="btn btn-primary">
+                    <span>عرض جميع المقالات</span>
+                    <i class="fas fa-arrow-left"></i>
+                </a>
             </div>
         </div>
     </section>
@@ -1570,39 +1763,121 @@
             document.querySelector(`[data-sector="${sectorId}"].sector-content`)?.classList.add('active');
         }
 
-        // Load Articles
+        // Load Articles with Carousel
         async function loadArticles() {
             const grid = document.getElementById('newsGrid');
+            const indicators = document.getElementById('newsIndicators');
+            
             try {
                 const res = await fetch('/api/articles.php');
                 const data = await res.json();
 
                 if (!data.success || !data.articles || data.articles.length === 0) {
-                    grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><i class="fas fa-newspaper"></i><p>لا توجد مقالات متاحة حالياً</p></div>';
+                    grid.innerHTML = '<div class="empty-state"><i class="fas fa-newspaper"></i><p>لا توجد مقالات متاحة حالياً</p></div>';
                     return;
                 }
 
                 grid.innerHTML = '';
-                data.articles.slice(0, 3).forEach((article, idx) => {
+                indicators.innerHTML = '';
+
+                // Load all articles with carousel layout
+                data.articles.forEach((article, idx) => {
                     const card = document.createElement('div');
                     card.className = 'news-card';
-                    card.style.animation = `slideInUp 0.6s ease ${idx * 0.1}s`;
+                    card.style.animation = `slideInUp 0.6s ease ${idx * 0.05}s`;
                     card.innerHTML = `
                         <div class="news-image">
                             <img src="${escapeHtml(article.image_url || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80')}" alt="${escapeHtml(article.title)}">
                             ${article.badge ? `<span class="news-badge">${escapeHtml(article.badge)}</span>` : ''}
                         </div>
                         <div class="news-content">
+                            <div class="news-meta">
+                                <span>${article.publish_date || 'تاريخ غير محدد'}</span>
+                                <span>${article.reading_time || '5'} دقيقة قراءة</span>
+                            </div>
                             <h3>${escapeHtml(article.title)}</h3>
                             <p>${escapeHtml((article.excerpt || article.description || '').substring(0, 150))}</p>
-                            <a href="/article/${article.id}" class="read-more">اقرأ المزيد <i class="fas fa-arrow-left"></i></a>
+                            <a href="/articles.html" class="read-more">اقرأ المزيد <i class="fas fa-arrow-left"></i></a>
                         </div>
                     `;
                     grid.appendChild(card);
+
+                    // Create indicator dots
+                    const dot = document.createElement('div');
+                    dot.className = `carousel-dot ${idx === 0 ? 'active' : ''}`;
+                    dot.addEventListener('click', () => scrollCarouselTo(idx));
+                    indicators.appendChild(dot);
                 });
+
+                // Setup carousel controls
+                setupCarouselControls();
             } catch (e) {
                 console.error('Failed to load articles:', e);
-                grid.innerHTML = '<div class="empty-state" style="grid-column: 1 / -1;"><i class="fas fa-exclamation-triangle"></i><p>خطأ في تحميل المقالات</p></div>';
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>خطأ في تحميل المقالات</p></div>';
+            }
+        }
+
+        function setupCarouselControls() {
+            const grid = document.getElementById('newsGrid');
+            const prevBtn = document.getElementById('newsPrevBtn');
+            const nextBtn = document.getElementById('newsNextBtn');
+            const cards = document.querySelectorAll('.news-card');
+            const dots = document.querySelectorAll('.carousel-dot');
+
+            let currentIndex = 0;
+
+            function updateDots() {
+                dots.forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === currentIndex);
+                });
+            }
+
+            function scroll(direction) {
+                const cardWidth = cards[0].offsetWidth;
+                const gap = 30;
+                const distance = cardWidth + gap;
+
+                if (direction === 'next') {
+                    currentIndex = Math.min(currentIndex + 1, cards.length - 1);
+                    grid.scrollBy({
+                        left: -(distance),
+                        behavior: 'smooth'
+                    });
+                } else {
+                    currentIndex = Math.max(currentIndex - 1, 0);
+                    grid.scrollBy({
+                        left: distance,
+                        behavior: 'smooth'
+                    });
+                }
+                updateDots();
+            }
+
+            prevBtn.addEventListener('click', () => scroll('prev'));
+            nextBtn.addEventListener('click', () => scroll('next'));
+
+            // Handle scroll to update dots
+            grid.addEventListener('scroll', () => {
+                const scrollLeft = grid.scrollLeft;
+                const cardWidth = cards[0].offsetWidth;
+                const gap = 30;
+                const distance = cardWidth + gap;
+                currentIndex = Math.round(scrollLeft / distance);
+                updateDots();
+            });
+        }
+
+        function scrollCarouselTo(index) {
+            const grid = document.getElementById('newsGrid');
+            const cards = document.querySelectorAll('.news-card');
+            if (cards[index]) {
+                const cardWidth = cards[0].offsetWidth;
+                const gap = 30;
+                const distance = (cardWidth + gap) * index;
+                grid.scrollBy({
+                    left: -distance,
+                    behavior: 'smooth'
+                });
             }
         }
 
