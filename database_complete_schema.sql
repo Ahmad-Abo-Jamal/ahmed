@@ -731,7 +731,7 @@ CREATE TABLE order_items (
 CREATE TABLE reviews (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT,
-    reviewable_type ENUM('product', 'article', 'service', 'influencer') NOT NULL,
+    reviewable_type ENUM('product', 'article', 'service', 'influencer', 'dictionary') NOT NULL,
     reviewable_id INT NOT NULL,
     title_ar VARCHAR(255),
     content_ar LONGTEXT,

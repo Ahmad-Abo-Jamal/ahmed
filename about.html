@@ -696,6 +696,75 @@
                 font-size: 2.5rem;
             }
         }
+
+        /* Reviews Section */
+        .reviews-section-about {
+            background: var(--neutral-light);
+            padding: 80px 0;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .review-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-blue);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .review-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-5px);
+        }
+
+        .review-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .review-card-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 1.05rem;
+        }
+
+        .review-card-rating {
+            display: flex;
+            gap: 3px;
+            color: #f39c12;
+        }
+
+        .review-card-text {
+            color: var(--neutral-dark);
+            opacity: 0.85;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .review-card-date {
+            color: var(--neutral-dark);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        .reviews-load-more {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .reviews-load-more .btn {
+            margin: 0 auto;
+        }
     </style>
     <link rel="stylesheet" href="/static/css/site-layout.css">
 </head>
@@ -952,6 +1021,30 @@
         </div>
     </div>
 
+    <!-- Reviews Section -->
+    <section class="reviews-section-about">
+        <div class="container">
+            <div class="section-title">
+                <h2>آراء وتقييمات العملاء</h2>
+                <p>شهادات من أشخاص استفادوا من خدماتي ومحتواي</p>
+            </div>
+
+            <div class="reviews-grid" id="aboutReviewsGrid">
+                <div class="empty-state" style="text-align: center; padding: 40px; grid-column: 1/-1;">
+                    <i class="fas fa-spinner spinning"></i>
+                    <p>جاري تحميل التقييمات...</p>
+                </div>
+            </div>
+
+            <div class="reviews-load-more">
+                <a href="reviews.html" class="btn btn-primary">
+                    <span>عرض جميع التقييمات</span>
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section>
         <div class="container">
@@ -1061,7 +1154,67 @@
         });
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', loadGallery);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadGallery();
+            loadAboutReviews();
+        });
+
+        // Load Reviews for About Page
+        async function loadAboutReviews() {
+            try {
+                const reviewsRes = await fetch('/api/reviews.php?action=get_reviews_with_content&reviewable_type=article&limit=6');
+                const reviewsData = await reviewsRes.json();
+                
+                const grid = document.getElementById('aboutReviewsGrid');
+                if (!grid) return;
+
+                if (reviewsData.success && Array.isArray(reviewsData.data) && reviewsData.data.length > 0) {
+                    grid.innerHTML = '';
+                    reviewsData.data.forEach((review, idx) => {
+                        const reviewCard = document.createElement('div');
+                        reviewCard.className = 'review-card fade-in-up';
+                        reviewCard.style.animationDelay = `${idx * 0.1}s`;
+                        reviewCard.innerHTML = `
+                            <div class="review-card-header">
+                                <div class="review-card-name">${escapeHtml(review.full_name || 'مستخدم مجهول')}</div>
+                                <div class="review-card-rating">${generateStarsAbout(review.rating)}</div>
+                            </div>
+                            <div class="review-card-text">${escapeHtml(review.content_ar || review.title_ar || '')}</div>
+                            <div class="review-card-date">${new Date(review.created_at).toLocaleDateString('ar-EG')}</div>
+                        `;
+                        grid.appendChild(reviewCard);
+                        observer.observe(reviewCard);
+                    });
+                } else {
+                    grid.innerHTML = '<div style="text-align: center; padding: 40px; grid-column: 1/-1; color: #999;">لا توجد تقييمات متاحة حالياً</div>';
+                }
+            } catch (e) {
+                console.error('Failed to load reviews:', e);
+                const grid = document.getElementById('aboutReviewsGrid');
+                if (grid) {
+                    grid.innerHTML = '<div style="text-align: center; padding: 40px; grid-column: 1/-1; color: #999;">⚠️ خطأ في تحميل التقييمات</div>';
+                }
+            }
+        }
+
+        function generateStarsAbout(rating) {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                stars += `<i class="fas fa-star" style="color: ${i < rating ? '#f39c12' : '#ddd'}"></i>`;
+            }
+            return stars;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
     </script>
 </body>
 

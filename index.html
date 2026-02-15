@@ -652,6 +652,206 @@
             gap: 12px;
         }
 
+        /* Reviews Section */
+        .reviews-section {
+            background: var(--white);
+        }
+
+        .reviews-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 50px;
+            align-items: center;
+        }
+
+        .reviews-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .reviews-header-stat {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .reviews-rating-display {
+            flex-shrink: 0;
+        }
+
+        .reviews-rating-big {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            line-height: 1;
+        }
+
+        .reviews-stars-big {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            color: #f39c12;
+            font-size: 1.3rem;
+        }
+
+        .reviews-stat-info h3 {
+            font-size: 1.3rem;
+            color: var(--neutral-dark);
+            margin-bottom: 8px;
+        }
+
+        .reviews-stat-info p {
+            color: var(--neutral-dark);
+            opacity: 0.7;
+            font-size: 0.95rem;
+        }
+
+        .reviews-distribution {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .distribution-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .distribution-stars {
+            min-width: 100px;
+            display: flex;
+            gap: 3px;
+        }
+
+        .distribution-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--neutral-light);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .distribution-fill {
+            height: 100%;
+            background: var(--primary-blue);
+            border-radius: 10px;
+            transition: var(--transition);
+        }
+
+        .distribution-count {
+            min-width: 50px;
+            text-align: right;
+            color: var(--neutral-dark);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .reviews-carousel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .review-item {
+            background: var(--neutral-light);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary-blue);
+            transition: var(--transition);
+            animation: slideInUp 0.5s ease;
+        }
+
+        .review-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateX(-5px);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 1.05rem;
+        }
+
+        .review-rating {
+            display: flex;
+            gap: 3px;
+            color: #f39c12;
+        }
+
+        .review-text {
+            color: var(--neutral-dark);
+            opacity: 0.85;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .review-date {
+            color: var(--neutral-dark);
+            opacity: 0.6;
+            font-size: 0.85rem;
+        }
+
+        .reviews-carousel-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .reviews-carousel-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 1.1rem;
+        }
+
+        .reviews-carousel-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-md);
+        }
+
+        .reviews-btn {
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .reviews-container {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-rating-big {
+                font-size: 2.5rem;
+            }
+
+            .distribution-row {
+                font-size: 0.9rem;
+            }
+
+            .review-item {
+                padding: 20px;
+            }
+        }
+
         /* About Section */
         .about-section {
             background: linear-gradient(135deg, rgba(8, 19, 123, 0.05) 0%, rgba(79, 9, 167, 0.05) 100%);
@@ -1604,6 +1804,60 @@
         </div>
     </section>
 
+    <!-- Reviews Section -->
+    <section id="reviews" class="reviews-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>آراء وتقييمات العملاء</h2>
+                <p>اكتشف ما يقوله العملاء عن محتوانا وخدماتنا</p>
+            </div>
+
+            <div class="reviews-container">
+                <!-- Reviews Stats -->
+                <div class="reviews-stats">
+                    <div class="reviews-header-stat">
+                        <div class="reviews-rating-display">
+                            <div class="reviews-rating-big" id="overallRating">0</div>
+                            <div class="reviews-stars-big" id="overallStars"></div>
+                        </div>
+                        <div class="reviews-stat-info">
+                            <h3>تقييم عام</h3>
+                            <p id="totalReviewsCount">0 تقييم</p>
+                        </div>
+                    </div>
+
+                    <!-- Distribution -->
+                    <div class="reviews-distribution" id="ratingDistribution">
+                        <!-- Will be filled by JavaScript -->
+                    </div>
+
+                    <a href="reviews.html" class="btn btn-primary reviews-btn">
+                        <span>عرض جميع التقييمات</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </div>
+
+                <!-- Reviews Carousel -->
+                <div class="reviews-carousel">
+                    <div id="reviewsCarousel" class="reviews-carousel-items">
+                        <div class="empty-state" style="text-align: center; padding: 40px;">
+                            <i class="fas fa-spinner spinning"></i>
+                            <p>جاري تحميل التقييمات...</p>
+                        </div>
+                    </div>
+                    <div class="reviews-carousel-controls">
+                        <button class="reviews-carousel-btn" id="reviewsPrevBtn" title="التقييم السابق">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <button class="reviews-carousel-btn" id="reviewsNextBtn" title="التقييم التالي">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact" class="contact-section">
         <div class="container">
@@ -2005,6 +2259,135 @@
             }
         }
 
+        // Load Reviews
+        let reviewsCurrentIndex = 0;
+        let allReviews = [];
+
+        async function loadReviews() {
+            try {
+                // Load review statistics
+                const statsRes = await fetch('/api/reviews.php?action=get_review_stats&reviewable_type=article');
+                const statsData = await statsRes.json();
+                
+                if (statsData.success && statsData.data) {
+                    const stats = statsData.data;
+                    displayReviewStats(stats);
+                }
+
+                // Load actual reviews
+                const reviewsRes = await fetch('/api/reviews.php?action=get_reviews_with_content&reviewable_type=article&limit=10');
+                const reviewsData = await reviewsRes.json();
+                
+                if (reviewsData.success && Array.isArray(reviewsData.data)) {
+                    allReviews = reviewsData.data;
+                    displayReviewCarousel();
+                } else {
+                    document.getElementById('reviewsCarousel').innerHTML = '<div class="empty-state"><p>لا توجد تقييمات متاحة حالياً</p></div>';
+                }
+            } catch (e) {
+                console.error('Failed to load reviews:', e);
+                document.getElementById('reviewsCarousel').innerHTML = '<div class="empty-state"><p>⚠️ خطأ في تحميل التقييمات</p></div>';
+            }
+        }
+
+        function displayReviewStats(stats) {
+            const rating = parseFloat(stats.avg_rating || 0).toFixed(1);
+            document.getElementById('overallRating').textContent = rating;
+            
+            // Display stars
+            const starsContainer = document.getElementById('overallStars');
+            starsContainer.innerHTML = generateStars(Math.round(parseFloat(rating)));
+            
+            // Display total count
+            document.getElementById('totalReviewsCount').textContent = `${stats.total_reviews || 0} تقييم`;
+
+            // Display distribution
+            const distribution = document.getElementById('ratingDistribution');
+            distribution.innerHTML = '';
+            
+            const total = stats.total_reviews || 0;
+            for (let i = 5; i >= 1; i--) {
+                const count = stats[`${i}_star`] || 0;
+                const percentage = total > 0 ? (count / total) * 100 : 0;
+                
+                const row = document.createElement('div');
+                row.className = 'distribution-row';
+                row.innerHTML = `
+                    <div class="distribution-stars">${generateStars(i)}</div>
+                    <div class="distribution-bar">
+                        <div class="distribution-fill" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="distribution-count">${count}</div>
+                `;
+                distribution.appendChild(row);
+            }
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                stars += `<i class="fas fa-star" style="color: ${i < rating ? '#f39c12' : '#ddd'}"></i>`;
+            }
+            return stars;
+        }
+
+        function displayReviewCarousel() {
+            const carousel = document.getElementById('reviewsCarousel');
+            carousel.innerHTML = '';
+            
+            allReviews.slice(0, 3).forEach((review, idx) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = `review-item ${idx === reviewsCurrentIndex ? 'active' : ''}`;
+                reviewItem.innerHTML = `
+                    <div class="review-header">
+                        <div>
+                            <div class="reviewer-name">${escapeHtml(review.full_name || 'مستخدم مجهول')}</div>
+                            <div class="review-rating">${generateStars(review.rating)}</div>
+                        </div>
+                    </div>
+                    <div class="review-text">${escapeHtml(review.content_ar || review.title_ar || '')}</div>
+                    <div class="review-date">${new Date(review.created_at).toLocaleDateString('ar-EG')}</div>
+                `;
+                carousel.appendChild(reviewItem);
+            });
+
+            // Setup carousel buttons
+            const prevBtn = document.getElementById('reviewsPrevBtn');
+            const nextBtn = document.getElementById('reviewsNextBtn');
+            
+            if (prevBtn) {
+                prevBtn.onclick = () => rotateReviews(-1);
+            }
+            if (nextBtn) {
+                nextBtn.onclick = () => rotateReviews(1);
+            }
+        }
+
+        function rotateReviews(direction) {
+            reviewsCurrentIndex += direction;
+            if (reviewsCurrentIndex >= allReviews.length) {
+                reviewsCurrentIndex = 0;
+            } else if (reviewsCurrentIndex < 0) {
+                reviewsCurrentIndex = allReviews.length - 1;
+            }
+            
+            const items = document.querySelectorAll('.review-item');
+            items.forEach((item, idx) => {
+                const reviewIdx = (reviewsCurrentIndex + idx) % allReviews.length;
+                const review = allReviews[reviewIdx];
+                item.innerHTML = `
+                    <div class="review-header">
+                        <div>
+                            <div class="reviewer-name">${escapeHtml(review.full_name || 'مستخدم مجهول')}</div>
+                            <div class="review-rating">${generateStars(review.rating)}</div>
+                        </div>
+                    </div>
+                    <div class="review-text">${escapeHtml(review.content_ar || review.title_ar || '')}</div>
+                    <div class="review-date">${new Date(review.created_at).toLocaleDateString('ar-EG')}</div>
+                `;
+            });
+        }
+
         // Contact Form
         document.getElementById('contactForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -2108,6 +2491,7 @@
             loadSectors();
             loadArticles();
             loadContactInfo();
+            loadReviews();
         });
 
         // Spinning animation for loaders
