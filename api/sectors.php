@@ -55,5 +55,3 @@ try {
         'message' => 'خطأ في قاعدة البيانات'
     ], JSON_UNESCAPED_UNICODE);
 }
-?>
-?>

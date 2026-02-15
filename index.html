@@ -1031,23 +1031,38 @@
             const contentsContainer = document.getElementById('sectorContents');
 
             try {
+                console.log('Loading sectors from API...');
                 const res = await fetch('/api/sectors.php');
+                
+                if (!res.ok) {
+                    throw new Error(`API Error: ${res.status}`);
+                }
+                
                 const data = await res.json();
+                console.log('Sectors data received:', data);
 
                 if (!data.success || !data.sectors || data.sectors.length === 0) {
-                    tabsContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px; width: 100%;"><p>لا توجد قطاعات متاحة</p></div>';
+                    console.warn('No sectors available');
+                    tabsContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px; width: 100%;"><p>لا توجد قطاعات متاحة حالياً</p></div>';
+                    contentsContainer.innerHTML = '';
                     return;
                 }
 
+                // Clear loading state
                 tabsContainer.innerHTML = '';
                 contentsContainer.innerHTML = '';
 
+                console.log(`Found ${data.sectors.length} sectors`);
+
                 data.sectors.forEach((sector, idx) => {
+                    console.log(`Processing sector: ${sector.name_ar} with ${sector.brands?.length || 0} brands`);
+                    
                     // Create tab button
                     const tabBtn = document.createElement('button');
                     tabBtn.className = `sector-tab ${idx === 0 ? 'active' : ''}`;
                     tabBtn.setAttribute('data-sector', sector.id);
-                    tabBtn.innerHTML = `<i class="fas ${sector.icon}"></i> ${escapeHtml(sector.name_ar)}`;
+                    tabBtn.type = 'button';
+                    tabBtn.innerHTML = `<i class="fas ${sector.icon || 'fa-briefcase'}"></i> ${escapeHtml(sector.name_ar)}`;
                     tabBtn.addEventListener('click', () => switchTab(sector.id));
                     tabsContainer.appendChild(tabBtn);
 
@@ -1059,28 +1074,40 @@
                     const brandsGrid = document.createElement('div');
                     brandsGrid.className = 'brands-grid';
 
-                    sector.brands?.forEach((brand, brandIdx) => {
-                        const brandCard = document.createElement('div');
-                        brandCard.className = 'brand-card';
-                        brandCard.style.animation = `slideInUp 0.6s ease ${brandIdx * 0.1}s`;
-                        const logoGradient = `linear-gradient(135deg, ${brand.logo_color || '#08137b'}, ${brand.logo_color_secondary || '#4f09a7'})`;
-                        brandCard.innerHTML = `
-                            <div class="brand-logo" style="background: ${logoGradient};">
-                                <i class="fas ${brand.icon}"></i>
-                            </div>
-                            <div class="brand-name">${escapeHtml(brand.name_ar)}</div>
-                            <div class="brand-category">${escapeHtml(brand.category_ar)}</div>
-                            <div class="brand-description">${escapeHtml(brand.description_ar)}</div>
-                        `;
-                        brandsGrid.appendChild(brandCard);
-                    });
+                    const brands = sector.brands || [];
+                    if (brands.length === 0) {
+                        const emptyBrand = document.createElement('div');
+                        emptyBrand.style.gridColumn = '1 / -1';
+                        emptyBrand.style.textAlign = 'center';
+                        emptyBrand.style.padding = '40px';
+                        emptyBrand.style.color = '#999';
+                        emptyBrand.innerHTML = '<p>لا توجد علامات تجارية في هذا القطاع</p>';
+                        brandsGrid.appendChild(emptyBrand);
+                    } else {
+                        brands.forEach((brand, brandIdx) => {
+                            const brandCard = document.createElement('div');
+                            brandCard.className = 'brand-card';
+                            brandCard.style.animationDelay = `${brandIdx * 0.1}s`;
+                            const logoGradient = `linear-gradient(135deg, ${brand.logo_color || '#08137b'}, ${brand.logo_color_secondary || '#4f09a7'})`;
+                            brandCard.innerHTML = `
+                                <div class="brand-logo" style="background: ${logoGradient};">
+                                    <i class="fas ${brand.icon || 'fa-star'}"></i>
+                                </div>
+                                <div class="brand-name">${escapeHtml(brand.name_ar)}</div>
+                                <div class="brand-category">${escapeHtml(brand.category_ar || '')}</div>
+                                <div class="brand-description">${escapeHtml(brand.description_ar || '')}</div>
+                            `;
+                            brandsGrid.appendChild(brandCard);
+                        });
+                    }
 
                     contentDiv.appendChild(brandsGrid);
                     contentsContainer.appendChild(contentDiv);
                 });
             } catch (e) {
                 console.error('Failed to load sectors:', e);
-                tabsContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px; width: 100%;"><p>خطأ في تحميل القطاعات</p></div>';
+                tabsContainer.innerHTML = '<div style="text-align: center; color: #999; padding: 40px; width: 100%;"><p>⚠️ خطأ في تحميل القطاعات</p><p style="font-size: 0.9rem; margin-top: 10px;">تأكد من تشغيل setup.php</p></div>';
+                contentsContainer.innerHTML = '';
             }
         }
 
