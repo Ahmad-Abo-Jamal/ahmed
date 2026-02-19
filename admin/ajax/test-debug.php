@@ -1,16 +1,20 @@
 <?php
 require_once '../../config.php';
 header('Content-Type: application/json');
+
+// SECURITY: Require admin authentication
+if (!isAdmin()) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Forbidden'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Debug endpoint to verify AJAX path and session/auth status
 try {
     $debug = [
         'reachable' => true,
         'time' => date('c'),
-        'isAdmin' => isAdmin(),
-        'session_id' => session_id(),
-        'session_admin_id' => $_SESSION['admin_id'] ?? null,
-        'session_admin_role' => $_SESSION['admin_role'] ?? null,
-        'cookies' => $_COOKIE
+        'isAdmin' => isAdmin()
     ];
 
     echo json_encode(['success' => true, 'debug' => $debug], JSON_UNESCAPED_UNICODE);

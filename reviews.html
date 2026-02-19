@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التقييمات والمراجعات - أحمد أبو المجد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #08137b;
+            --secondary-purple: #4f09a7;
+            --neutral-light: #f5f5f0;
+            --neutral-dark: #2d3748;
+            --accent-gold: #c5a47e;
+            --white: #ffffff;
+            --gradient-primary: linear-gradient(135deg, var(--primary-blue), var(--secondary-purple));
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--neutral-light);
+            color: var(--neutral-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            direction: rtl;
+            cursor: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* Hero Banner */
+        .hero {
+            background: var(--gradient-primary);
+            color: var(--white);
+            padding: 120px 40px 80px;
+            text-align: center;
+            margin-top: 65px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            animation: slideInDown 0.8s ease;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+            animation: slideInUp 0.8s ease;
+        }
+
+        @keyframes slideInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Section */
+        section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.8rem;
+            color: var(--primary-blue);
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: var(--neutral-dark);
+            opacity: 0.7;
+        }
+
+        /* Reviews Filters */
+        .reviews-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: 2px solid var(--primary-blue);
+            background: var(--white);
+            color: var(--primary-blue);
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            font-size: 0.95rem;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--primary-blue);
+            color: var(--white);
+        }
+
+        /* Reviews Grid */
+        .reviews-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .review-item {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--primary-blue);
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .review-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-5px);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .reviewer-details {
+            flex: 1;
+        }
+
+        .reviewer-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .review-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: var(--neutral-dark);
+            opacity: 0.7;
+        }
+
+        .review-rating {
+            display: flex;
+            gap: 3px;
+            color: #f39c12;
+            font-size: 1.1rem;
+        }
+
+        .review-content-type {
+            display: inline-block;
+            padding: 4px 10px;
+            background: var(--primary-blue);
+            color: var(--white);
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .review-title {
+            font-weight: 600;
+            color: var(--primary-blue);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .review-text {
+            color: var(--neutral-dark);
+            line-height: 1.7;
+            margin-bottom: 15px;
+            opacity: 0.85;
+        }
+
+        .review-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid var(--neutral-light);
+            font-size: 0.85rem;
+            color: var(--neutral-dark);
+            opacity: 0.6;
+        }
+
+        .helpful-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .helpful-btn {
+            padding: 5px 10px;
+            background: transparent;
+            border: 1px solid var(--neutral-light);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+        }
+
+        .helpful-btn:hover {
+            border-color: var(--primary-blue);
+            color: var(--primary-blue);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--neutral-dark);
+            opacity: 0.6;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        /* Loading */
+        .spinner {
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            background: var(--primary-blue);
+            color: var(--white);
+            padding: 50px 0 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .reviews-container {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .hero {
+                padding: 80px 20px 60px;
+            }
+
+            section {
+                padding: 50px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="custom-cursor" id="customCursor"></div>
+    <div id="site-header"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>التقييمات والمراجعات</h1>
+            <p>اكتشف آراء العملاء والمتابعين حول محتوايا وخدماتي</p>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section>
+        <div class="container">
+            <div class="section-title">
+                <h2>اقرأ تقييمات العملاء</h2>
+                <p>آراء أصلية من أشخاص استفادوا من محتوايا وخدماتي</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="reviews-filters">
+                <button class="filter-btn active" onclick="filterReviews('all')">جميع التقييمات</button>
+                <button class="filter-btn" onclick="filterReviews('article')">المقالات</button>
+                <button class="filter-btn" onclick="filterReviews('dictionary')">القاموس</button>
+                <button class="filter-btn" onclick="filterReviews('service')">الخدمات</button>
+                <button class="filter-btn" onclick="filterReviews('product')">المنتجات</button>
+            </div>
+
+            <!-- Reviews Grid -->
+            <div class="reviews-container" id="reviewsContainer">
+                <div class="empty-state" style="grid-column: 1/-1;">
+                    <i class="fas fa-spinner spinning"></i>
+                    <p>جاري تحميل التقييمات...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="site-footer"></div>
+
+    <script src="/static/js/site-layout.js"></script>
+    
+    <script>
+        let allReviews = [];
+        let currentFilter = 'all';
+
+        // Load reviews on page load
+        document.addEventListener('DOMContentLoaded', loadAllReviews);
+
+        async function loadAllReviews() {
+            try {
+                const res = await fetch('/api/reviews.php?action=get_reviews_with_content&limit=1000');
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.data)) {
+                    allReviews = data.data;
+                    displayReviews(allReviews);
+                } else {
+                    const container = document.getElementById('reviewsContainer');
+                    container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><i class="fas fa-inbox"></i><p>لا توجد تقييمات متاحة حالياً</p></div>';
+                }
+            } catch (e) {
+                console.error('Failed to load reviews:', e);
+                const container = document.getElementById('reviewsContainer');
+                container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><i class="fas fa-exclamation-circle"></i><p>⚠️ خطأ في تحميل التقييمات</p></div>';
+            }
+        }
+
+        function filterReviews(type) {
+            currentFilter = type;
+
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter and display
+            let filtered = allReviews;
+            if (type !== 'all') {
+                filtered = allReviews.filter(r => r.reviewable_type === type);
+            }
+
+            displayReviews(filtered);
+        }
+
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviewsContainer');
+
+            if (reviews.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><i class="fas fa-inbox"></i><p>لا توجد تقييمات لهذا النوع</p></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            reviews.forEach((review, idx) => {
+                const item = document.createElement('div');
+                item.className = 'review-item';
+                item.style.animationDelay = `${idx * 0.05}s`;
+                
+                const typeLabels = {
+                    'article': 'مقالة',
+                    'dictionary': 'قاموس',
+                    'service': 'خدمة',
+                    'product': 'منتج'
+                };
+
+                item.innerHTML = `
+                    <div class="review-header">
+                        <div class="reviewer-details">
+                            <div class="reviewer-name">${escapeHtml(review.full_name || 'مستخدم مجهول')}</div>
+                            <div class="review-meta">
+                                <span>${new Date(review.created_at).toLocaleDateString('ar-EG')}</span>
+                            </div>
+                        </div>
+                        <div class="review-rating">${generateStars(review.rating)}</div>
+                    </div>
+
+                    <div class="review-content-type">${typeLabels[review.reviewable_type] || review.reviewable_type}</div>
+
+                    <div class="review-title">${escapeHtml(review.title_ar || '')}</div>
+                    <div class="review-text">${escapeHtml(review.content_ar || '')}</div>
+
+                    <div class="review-footer">
+                        <span>${review.helpful_votes || 0} <i class="fas fa-thumbs-up"></i></span>
+                        <div class="helpful-buttons">
+                            <button class="helpful-btn" onclick="markHelpful(${review.id}, true)" title="هذا التقييم مفيد">
+                                <i class="fas fa-thumbs-up"></i>
+                            </button>
+                            <button class="helpful-btn" onclick="markHelpful(${review.id}, false)" title="هذا التقييم غير مفيد">
+                                <i class="fas fa-thumbs-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                stars += `<i class="fas fa-star" style="color: ${i < rating ? '#f39c12' : '#ddd'}"></i>`;
+            }
+            return stars;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function markHelpful(reviewId, isHelpful) {
+            // This would require user authentication
+            // For now, just provide feedback
+            alert(isHelpful ? 'شكراً على تقييمك للمراجعة' : 'شكراً على التغذية الراجعة');
+        }
+
+        // Custom cursor
+        const customCursor = document.getElementById('customCursor');
+        if (customCursor) {
+            document.addEventListener('mousemove', (e) => {
+                customCursor.style.left = e.clientX + 'px';
+                customCursor.style.top = e.clientY + 'px';
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -265,6 +265,9 @@ $campaigns = $campaignsStmt->fetchAll();
             </div>
 
             <div style="display: flex; gap: 10px;">
+                <button class="btn" onclick="document.getElementById('subscriberModal').style.display='flex'">
+                    <i class="fas fa-plus"></i> مشترك جديد
+                </button>
                 <button class="btn" onclick="viewSubscribers()">
                     <i class="fas fa-list"></i> عرض المشتركين
                 </button>
@@ -278,36 +281,227 @@ $campaigns = $campaignsStmt->fetchAll();
         </div>
     </div>
 
-    <script>
-        function openNewCampaign() {
-            alert('سيتم فتح نموذج الحملة الجديدة قريباً');
-        }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.0/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.0/sweetalert2.min.css">
 
-        function viewCampaign(id) {
-            alert('سيتم عرض تفاصيل الحملة قريباً');
+    <!-- Campaign Modal -->
+    <div id="campaignModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 700px; max-height: 80vh; overflow-y: auto;">
+            <h2 id="campaignModalTitle">حملة جديدة</h2>
+            <form id="campaignForm" style="margin-top: 20px;">
+                <input type="hidden" id="campaignId" name="id" value="">
+                
+                <div style="margin-bottom: 15px;">
+                    <label>عنوان الحملة *</label>
+                    <input type="text" id="campaignTitle" name="title" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>موضوع البريد *</label>
+                    <input type="text" id="campaignSubject" name="subject" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>المحتوى *</label>
+                    <textarea id="campaignContent" name="content" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal; min-height: 200px;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="document.getElementById('campaignModal').style.display='none'" style="padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer;">إلغاء</button>
+                    <button type="submit" style="padding: 10px 20px; background: #08137b; color: white; border: none; border-radius: 4px; cursor: pointer;">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Subscriber Modal -->
+    <div id="subscriberModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 500px;">
+            <h2>إضافة مشترك جديد</h2>
+            <form id="subscriberForm" style="margin-top: 20px;">
+                <div style="margin-bottom: 15px;">
+                    <label>البريد الإلكتروني *</label>
+                    <input type="email" id="subscriberEmail" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label>الاسم</label>
+                    <input type="text" id="subscriberName" name="name" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-family: Tajawal;">
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="document.getElementById('subscriberModal').style.display='none'" style="padding: 10px 20px; background: #f0f0f0; border: none; border-radius: 4px; cursor: pointer;">إلغاء</button>
+                    <button type="submit" style="padding: 10px 20px; background: #08137b; color: white; border: none; border-radius: 4px; cursor: pointer;">إضافة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isEditMode = false;
+
+        function openNewCampaign() {
+            isEditMode = false;
+            document.getElementById('campaignModalTitle').innerHTML = 'حملة جديدة';
+            document.getElementById('campaignForm').reset();
+            document.getElementById('campaignId').value = '';
+            document.getElementById('campaignModal').style.display = 'flex';
         }
 
         function editCampaign(id) {
-            alert('سيتم فتح محرر الحملة قريباً');
+            isEditMode = true;
+            document.getElementById('campaignModalTitle').innerHTML = 'تعديل الحملة';
+            
+            fetch(`/admin/ajax/newsletter.php?action=get_campaign&id=${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('campaignId').value = data.data.id;
+                        document.getElementById('campaignTitle').value = data.data.title;
+                        document.getElementById('campaignSubject').value = data.data.subject;
+                        document.getElementById('campaignContent').value = data.data.content;
+                        document.getElementById('campaignModal').style.display = 'flex';
+                    }
+                });
+        }
+
+        function viewCampaign(id) {
+            fetch(`/admin/ajax/newsletter.php?action=get_campaign&id=${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const campaign = data.data;
+                        Swal.fire({
+                            title: campaign.title,
+                            html: `<div style="text-align: right; direction: rtl;">
+                                <p><strong>الموضوع:</strong> ${campaign.subject}</p>
+                                <p><strong>الحالة:</strong> ${campaign.status}</p>
+                                <div style="background: #f0f0f0; padding: 15px; border-radius: 4px; margin-top: 10px; text-align: right;">
+                                    ${campaign.content}
+                                </div>
+                            </div>`,
+                            showCloseButton: true
+                        });
+                    }
+                });
         }
 
         function sendCampaign(id) {
-            if (confirm('هل تريد إرسال هذه الحملة لجميع المشتركين؟')) {
-                alert('سيتم إرسال الحملة قريباً');
-            }
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: 'سيتم إرسال هذه الحملة إلى جميع المشتركين',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#08137b',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'نعم، أرسل الآن',
+                cancelButtonText: 'إلغاء'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch('/admin/ajax/newsletter.php?action=send_campaign', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: `id=${id}`
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('تم!', data.message, 'success').then(() => location.reload());
+                        } else {
+                            Swal.fire('خطأ', data.message, 'error');
+                        }
+                    });
+                }
+            });
         }
 
         function viewSubscribers() {
-            alert('سيتم عرض قائمة المشتركين قريباً');
+            window.location.href = 'subscribers.php';
         }
 
         function exportSubscribers() {
-            alert('سيتم تصدير ملف CSV قريباً');
+            Swal.fire({
+                title: 'تصدير المشتركين',
+                text: 'سيتم تحميل ملف CSV بقائمة جميع المشتركين',
+                icon: 'info',
+                showConfirmButton: true,
+                confirmButtonColor: '#08137b'
+            }).then(() => {
+                fetch('/admin/ajax/newsletter.php?action=subscribers_list')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success && data.data.length > 0) {
+                            const csv = 'البريد الإلكتروني,الاسم,التأكيد,التاريخ\n' +
+                                data.data.map(s => `${s.email},${s.name},${s.is_confirmed ? 'موثق' : 'انتظار'},${s.created_at}`).join('\n');
+                            const blob = new Blob([csv], {type: 'text/csv'});
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'subscribers.csv';
+                            a.click();
+                        }
+                    });
+            });
         }
 
         function importSubscribers() {
-            alert('سيتم فتح نموذج الاستيراد قريباً');
+            Swal.fire({
+                title: 'استيراد المشتركين',
+                text: 'هذه الميزة ستتوفر قريباً',
+                icon: 'info'
+            });
         }
+
+        document.getElementById('campaignForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const action = isEditMode ? 'edit_campaign' : 'add_campaign';
+            formData.append('action', action);
+            formData.append('status', 'draft');
+            
+            const params = new URLSearchParams(formData);
+            
+            fetch('/admin/ajax/newsletter.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: params
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('تم!', data.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            });
+        });
+
+        document.getElementById('subscriberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            formData.append('action', 'add_subscriber');
+            
+            const params = new URLSearchParams(formData);
+            
+            fetch('/admin/ajax/newsletter.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: params
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('تم!', data.message, 'success').then(() => {
+                        document.getElementById('subscriberModal').style.display = 'none';
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            });
+        });
     </script>
 </body>
 </html>

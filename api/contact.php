@@ -13,7 +13,7 @@ if (ob_get_level()) ob_end_clean();
 require_once '../config.php';
 
 // Set headers for CORS and JSON
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $name = sanitize($_POST['name'] ?? '');
 $email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
 $phone = sanitize($_POST['phone'] ?? '');
+$service = sanitize($_POST['service'] ?? '');
 $subject = sanitize($_POST['subject'] ?? '');
 $message = sanitize($_POST['message'] ?? '');
 
@@ -71,18 +72,17 @@ if (!empty($errors)) {
 // Insert message into database
 try {
     $stmt = $db->prepare("
-        INSERT INTO contact_messages (name, email, phone, subject, message, ip_address, user_agent)
-        VALUES (:name, :email, :phone, :subject, :message, :ip, :user_agent)
+        INSERT INTO contact_messages (name, email, phone, service, subject, message)
+        VALUES (:name, :email, :phone, :service, :subject, :message)
     ");
     
     $result = $stmt->execute([
         ':name' => $name,
         ':email' => $email,
         ':phone' => $phone,
+        ':service' => $service,
         ':subject' => $subject,
-        ':message' => $message,
-        ':ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown',
-        ':user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown'
+        ':message' => $message
     ]);
     
     if ($result) {

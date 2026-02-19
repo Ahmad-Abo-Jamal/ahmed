@@ -9,7 +9,8 @@
 </style>
 
 <?php
-$stmt = $db->query("SELECT * FROM site_settings");
+$stmt = $db->prepare("SELECT * FROM site_settings");
+$stmt->execute();
 $settings = [];
 while ($row = $stmt->fetch()) {
     $settings[$row['setting_key']] = $row['setting_value'];

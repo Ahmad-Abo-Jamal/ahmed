@@ -13,7 +13,7 @@ if (ob_get_level()) ob_end_clean();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 
@@ -55,8 +55,8 @@ try {
     }
 
     // Get published articles (list)
-    $stmt = $db->prepare(""
-        SELECT 
+    $stmt = $db->prepare(<<<'SQL'
+        SELECT
             a.id,
             a.title,
             a.slug,
@@ -64,18 +64,18 @@ try {
             a.category,
             a.badge,
             a.image_url,
-            a.views,
             a.publish_date,
             a.created_at,
             u.full_name as author,
             a.word_count,
             a.reading_time
         FROM articles a
-        JOIN admin_users u ON a.author_id = u.id
+        LEFT JOIN admin_users u ON a.author_id = u.id
         WHERE a.status = 'published'
         ORDER BY a.publish_date DESC
         LIMIT 200
-    """);
+    SQL
+    );
     
     $stmt->execute();
     $articles = $stmt->fetchAll();
@@ -83,9 +83,8 @@ try {
     // Format dates
     foreach ($articles as &$article) {
         if ($article['publish_date']) {
-            $article['publish_date'] = date('Y-m-d', strtotime($article['publish_date']));
+            $article['publish_date'] = date('Y-m-d H:i', strtotime($article['publish_date']));
         }
-        $article['views'] = intval($article['views']);
     }
     
     echo json_encode([

@@ -1,7 +1,7 @@
 <?php
 /**
  * Reviews & Ratings API
- * User reviews for products, articles, services
+ * User reviews for products, articles, services, dictionary
  */
 
 require_once '../config.php';
@@ -15,7 +15,7 @@ try {
         throw new Exception('Missing action parameter');
     }
 
-    // Get reviews
+    // Get reviews for a specific item
     if ($action === 'get_reviews') {
         $reviewable_type = $_GET['reviewable_type'] ?? null;
         $reviewable_id = $_GET['reviewable_id'] ?? null;
@@ -37,6 +37,121 @@ try {
         $stmt->execute([$reviewable_type, $reviewable_id, $limit]);
         
         return jsonResponse($stmt->fetchAll());
+    }
+
+    // Get reviews by type (for homepage/general pages)
+    if ($action === 'get_reviews_by_type') {
+        $reviewable_type = $_GET['reviewable_type'] ?? null;
+        $limit = $_GET['limit'] ?? 10;
+        $offset = $_GET['offset'] ?? 0;
+
+        if (!$reviewable_type) {
+            throw new Exception('Missing reviewable_type');
+        }
+
+        $stmt = $db->prepare("
+            SELECT r.*, u.full_name, u.avatar_url,
+                   (SELECT COUNT(*) FROM review_helpfulness WHERE review_id = r.id AND is_helpful = TRUE) as helpful_votes
+            FROM reviews r
+            LEFT JOIN users u ON r.user_id = u.id
+            WHERE r.reviewable_type = ? AND r.status = 'approved'
+            ORDER BY r.created_at DESC
+            LIMIT ? OFFSET ?
+        ");
+        $stmt->execute([$reviewable_type, $limit, $offset]);
+        
+        return jsonResponse($stmt->fetchAll());
+    }
+
+    // Get reviews with content info
+    if ($action === 'get_reviews_with_content') {
+        $reviewable_type = $_GET['reviewable_type'] ?? null;
+        $limit = $_GET['limit'] ?? 10;
+        $offset = $_GET['offset'] ?? 0;
+
+        if (!$reviewable_type) {
+            throw new Exception('Missing reviewable_type');
+        }
+
+        // Get reviews with their associated content
+        if ($reviewable_type === 'article') {
+            $stmt = $db->prepare("
+                SELECT r.*, u.full_name, u.avatar_url, a.title as content_title, a.slug as content_slug,
+                       (SELECT COUNT(*) FROM review_helpfulness WHERE review_id = r.id AND is_helpful = TRUE) as helpful_votes
+                FROM reviews r
+                LEFT JOIN users u ON r.user_id = u.id
+                LEFT JOIN articles a ON r.reviewable_id = a.id
+                WHERE r.reviewable_type = ? AND r.status = 'approved'
+                ORDER BY r.created_at DESC
+                LIMIT ? OFFSET ?
+            ");
+        } elseif ($reviewable_type === 'dictionary') {
+            $stmt = $db->prepare("
+                SELECT r.*, u.full_name, u.avatar_url, d.word_ar as content_title,
+                       (SELECT COUNT(*) FROM review_helpfulness WHERE review_id = r.id AND is_helpful = TRUE) as helpful_votes
+                FROM reviews r
+                LEFT JOIN users u ON r.user_id = u.id
+                LEFT JOIN dictionary d ON r.reviewable_id = d.id
+                WHERE r.reviewable_type = ? AND r.status = 'approved'
+                ORDER BY r.created_at DESC
+                LIMIT ? OFFSET ?
+            ");
+        } else {
+            $stmt = $db->prepare("
+                SELECT r.*, u.full_name, u.avatar_url,
+                       (SELECT COUNT(*) FROM review_helpfulness WHERE review_id = r.id AND is_helpful = TRUE) as helpful_votes
+                FROM reviews r
+                LEFT JOIN users u ON r.user_id = u.id
+                WHERE r.reviewable_type = ? AND r.status = 'approved'
+                ORDER BY r.created_at DESC
+                LIMIT ? OFFSET ?
+            ");
+        }
+        $stmt->execute([$reviewable_type, $limit, $offset]);
+        
+        return jsonResponse($stmt->fetchAll());
+    }
+
+    // Get review statistics
+    if ($action === 'get_review_stats') {
+        $reviewable_type = $_GET['reviewable_type'] ?? null;
+        $reviewable_id = $_GET['reviewable_id'] ?? null;
+
+        if (!$reviewable_type) {
+            throw new Exception('Missing reviewable_type');
+        }
+
+        if ($reviewable_id) {
+            $stmt = $db->prepare("
+                SELECT 
+                    AVG(rating) as avg_rating,
+                    COUNT(*) as total_reviews,
+                    SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) as five_star,
+                    SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) as four_star,
+                    SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as three_star,
+                    SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as two_star,
+                    SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as one_star
+                FROM reviews
+                WHERE reviewable_type = ? AND reviewable_id = ? AND status = 'approved'
+            ");
+            $stmt->execute([$reviewable_type, $reviewable_id]);
+        } else {
+            $stmt = $db->prepare("
+                SELECT 
+                    AVG(rating) as avg_rating,
+                    COUNT(*) as total_reviews,
+                    SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) as five_star,
+                    SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) as four_star,
+                    SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) as three_star,
+                    SUM(CASE WHEN rating = 2 THEN 1 ELSE 0 END) as two_star,
+                    SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) as one_star
+                FROM reviews
+                WHERE reviewable_type = ? AND status = 'approved'
+            ");
+            $stmt->execute([$reviewable_type]);
+        }
+        
+        return jsonResponse($stmt->fetch());
     }
 
     // Get single review

@@ -15,7 +15,6 @@ try {
     ];
 } catch(PDOException $e) {
     $stats = ['messages' => 0, 'articles' => 0, 'services' => 0, 'total_messages' => 0];
-    $stats = ['messages' => 0, 'articles' => 0, 'services' => 0, 'total_messages' => 0, 'sectors' => 0, 'brands' => 0];
 }
 
 // Logout handler
@@ -185,6 +184,67 @@ if (isset($_GET['logout'])) {
             padding: 30px;
         }
         
+
+        .menu-section {
+            margin: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.03);
+        }
+
+        .menu-section-title {
+            width: 100%;
+            background: transparent;
+            border: 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 14px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+        }
+
+        .menu-section-title .label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            opacity: .9;
+        }
+
+        .menu-section-title .caret {
+            transition: transform .25s ease;
+            font-size: 12px;
+            opacity: .8;
+        }
+
+        .menu-section-content {
+            max-height: 700px;
+            transition: max-height .25s ease;
+        }
+
+        .menu-section.collapsed .menu-section-content {
+            max-height: 0;
+        }
+
+        .menu-section.collapsed .menu-section-title .caret {
+            transform: rotate(-90deg);
+        }
+
+        .menu-item {
+            border-radius: 10px;
+            margin: 3px 8px;
+            border-right: 0;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            border-right-color: transparent;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.15);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -217,92 +277,63 @@ if (isset($_GET['logout'])) {
             </div>
             
             <nav class="menu">
-                <a href="?page=dashboard" class="menu-item <?php echo $page === 'dashboard' ? 'active' : ''; ?>">
-                    <i class="fas fa-home"></i>
-                    <span>الرئيسية</span>
-                </a>
-                
-                <a href="?page=messages" class="menu-item <?php echo $page === 'messages' ? 'active' : ''; ?>">
-                    <i class="fas fa-envelope"></i>
-                    <span>الرسائل</span>
-                    <?php if ($stats['messages'] > 0): ?>
-                        <span class="badge"><?php echo $stats['messages']; ?></span>
-                    <?php endif; ?>
-                </a>
-                
-                <a href="?page=articles" class="menu-item <?php echo $page === 'articles' ? 'active' : ''; ?>">
-                    <i class="fas fa-newspaper"></i>
-                    <span>المقالات</span>
-                </a>
-                
-                <a href="?page=services" class="menu-item <?php echo $page === 'services' ? 'active' : ''; ?>">
-                    <i class="fas fa-briefcase"></i>
-                    <span>الخدمات</span>
-                </a>
-                
-                <a href="?page=sectors" class="menu-item <?php echo $page === 'sectors' ? 'active' : ''; ?>">
-                    <i class="fas fa-layer-group"></i>
-                    <span>القطاعات و العلامات</span>
-                </a>
+                <div class="menu-section" data-section>
+                    <button class="menu-section-title" type="button" data-toggle>
+                        <span class="label"><i class="fas fa-compass"></i> الواجهة الرئيسية</span>
+                        <i class="fas fa-chevron-down caret"></i>
+                    </button>
+                    <div class="menu-section-content">
+                        <a href="?page=dashboard" class="menu-item <?php echo $page === 'dashboard' ? 'active' : ''; ?>">
+                            <i class="fas fa-home"></i>
+                            <span>الرئيسية</span>
+                        </a>
 
-                <a href="?page=dictionary" class="menu-item <?php echo $page === 'dictionary' ? 'active' : ''; ?>">
-                    <i class="fas fa-book"></i>
-                    <span>القاموس العربي</span>
-                </a>
+                        <a href="?page=messages" class="menu-item <?php echo $page === 'messages' ? 'active' : ''; ?>">
+                            <i class="fas fa-envelope"></i>
+                            <span>الرسائل</span>
+                            <?php if ($stats['messages'] > 0): ?>
+                                <span class="badge"><?php echo $stats['messages']; ?></span>
+                            <?php endif; ?>
+                        </a>
 
-                <a href="?page=influencers" class="menu-item <?php echo $page === 'influencers' ? 'active' : ''; ?>">
-                    <i class="fas fa-star"></i>
-                    <span>المؤثرون</span>
-                </a>
+                        <a href="?page=activity" class="menu-item <?php echo $page === 'activity' ? 'active' : ''; ?>">
+                            <i class="fas fa-history"></i>
+                            <span>سجل النشاطات</span>
+                        </a>
+                    </div>
+                </div>
 
-                <a href="?page=users" class="menu-item <?php echo $page === 'users' ? 'active' : ''; ?>">
-                    <i class="fas fa-users"></i>
-                    <span>إدارة المستخدمين</span>
-                </a>
+                <div class="menu-section" data-section>
+                    <button class="menu-section-title" type="button" data-toggle>
+                        <span class="label"><i class="fas fa-pen-ruler"></i> المحتوى والخدمات</span>
+                        <i class="fas fa-chevron-down caret"></i>
+                    </button>
+                    <div class="menu-section-content">
+                        <a href="?page=articles" class="menu-item <?php echo $page === 'articles' ? 'active' : ''; ?>"><i class="fas fa-newspaper"></i><span>المقالات</span></a>
+                        <a href="?page=services" class="menu-item <?php echo $page === 'services' ? 'active' : ''; ?>"><i class="fas fa-briefcase"></i><span>الخدمات</span></a>
+                        <a href="?page=sectors" class="menu-item <?php echo $page === 'sectors' ? 'active' : ''; ?>"><i class="fas fa-layer-group"></i><span>القطاعات و العلامات</span></a>
+                        <a href="?page=dictionary" class="menu-item <?php echo $page === 'dictionary' ? 'active' : ''; ?>"><i class="fas fa-book"></i><span>القاموس العربي</span></a>
+                        <a href="?page=influencers" class="menu-item <?php echo $page === 'influencers' ? 'active' : ''; ?>"><i class="fas fa-star"></i><span>المؤثرون</span></a>
+                    </div>
+                </div>
 
-                <a href="?page=newsletter" class="menu-item <?php echo $page === 'newsletter' ? 'active' : ''; ?>">
-                    <i class="fas fa-envelope-open-text"></i>
-                    <span>النشرة البريدية</span>
-                </a>
+                <div class="menu-section" data-section>
+                    <button class="menu-section-title" type="button" data-toggle>
+                        <span class="label"><i class="fas fa-rocket"></i> الميزات المتقدمة</span>
+                        <i class="fas fa-chevron-down caret"></i>
+                    </button>
+                    <div class="menu-section-content">
+                        <a href="?page=users" class="menu-item <?php echo $page === 'users' ? 'active' : ''; ?>"><i class="fas fa-users"></i><span>إدارة المستخدمين</span></a>
+                        <a href="?page=newsletter" class="menu-item <?php echo $page === 'newsletter' ? 'active' : ''; ?>"><i class="fas fa-envelope-open-text"></i><span>النشرة البريدية</span></a>
+                        <a href="?page=products" class="menu-item <?php echo $page === 'products' ? 'active' : ''; ?>"><i class="fas fa-shopping-cart"></i><span>المنتجات</span></a>
+                        <a href="?page=email_templates" class="menu-item <?php echo $page === 'email_templates' ? 'active' : ''; ?>"><i class="fas fa-envelope"></i><span>قوالب البريد</span></a>
+                        <a href="?page=analytics" class="menu-item <?php echo $page === 'analytics' ? 'active' : ''; ?>"><i class="fas fa-chart-bar"></i><span>التحليلات</span></a>
+                        <a href="?page=reviews" class="menu-item <?php echo $page === 'reviews' ? 'active' : ''; ?>"><i class="fas fa-star-half-alt"></i><span>التقييمات</span></a>
+                        <a href="?page=tags" class="menu-item <?php echo $page === 'tags' ? 'active' : ''; ?>"><i class="fas fa-tags"></i><span>الوسوم والفئات</span></a>
+                        <a href="?page=settings" class="menu-item <?php echo $page === 'settings' ? 'active' : ''; ?>"><i class="fas fa-cog"></i><span>الإعدادات</span></a>
+                    </div>
+                </div>
 
-                <!-- Advanced Features Section -->
-                <div style="padding: 15px 0; color: rgba(255,255,255,0.5); font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px;">الميزات المتقدمة</div>
-
-                <a href="?page=products" class="menu-item <?php echo $page === 'products' ? 'active' : ''; ?>">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>المنتجات</span>
-                </a>
-
-                <a href="?page=email_templates" class="menu-item <?php echo $page === 'email_templates' ? 'active' : ''; ?>">
-                    <i class="fas fa-envelope"></i>
-                    <span>قوالب البريد</span>
-                </a>
-
-                <a href="?page=analytics" class="menu-item <?php echo $page === 'analytics' ? 'active' : ''; ?>">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>التحليلات</span>
-                </a>
-
-                <a href="?page=reviews" class="menu-item <?php echo $page === 'reviews' ? 'active' : ''; ?>">
-                    <i class="fas fa-star"></i>
-                    <span>التقييمات</span>
-                </a>
-
-                <a href="?page=tags" class="menu-item <?php echo $page === 'tags' ? 'active' : ''; ?>">
-                    <i class="fas fa-tags"></i>
-                    <span>الوسوم والفئات</span>
-                </a>
-                
-                <a href="?page=settings" class="menu-item <?php echo $page === 'settings' ? 'active' : ''; ?>">
-                    <i class="fas fa-cog"></i>
-                    <span>الإعدادات</span>
-                </a>
-                
-                <a href="?page=activity" class="menu-item <?php echo $page === 'activity' ? 'active' : ''; ?>">
-                    <i class="fas fa-history"></i>
-                    <span>سجل النشاطات</span>
-                </a>
-                
                 <a href="?logout=1" class="menu-item" onclick="return confirm('هل أنت متأكد من تسجيل الخروج؟')">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>تسجيل الخروج</span>
@@ -352,6 +383,9 @@ if (isset($_GET['logout'])) {
             
             <div class="content-area">
                 <?php
+                // Whitelist allowed pages to prevent LFI attack
+                $allowed_pages = ['dashboard', 'messages', 'articles', 'services', 'sectors', 'dictionary', 'influencers', 'users', 'newsletter', 'products', 'email_templates', 'analytics', 'reviews', 'tags', 'settings', 'activity'];
+                $page = isset($_GET['page']) && in_array($_GET['page'], $allowed_pages) ? $_GET['page'] : 'dashboard';
                 $page_file = "pages/{$page}.php";
                 if (file_exists($page_file)) {
                     include $page_file;
@@ -363,5 +397,20 @@ if (isset($_GET['logout'])) {
         </main>
     </div>
     
+    <script>
+        document.querySelectorAll('[data-toggle]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                btn.closest('[data-section]').classList.toggle('collapsed');
+            });
+        });
+
+        const activeItem = document.querySelector('.menu-item.active');
+        if (activeItem) {
+            const parentSection = activeItem.closest('[data-section]');
+            document.querySelectorAll('[data-section]').forEach((section) => {
+                if (section !== parentSection) section.classList.add('collapsed');
+            });
+        }
+    </script>
 </body>
 </html>

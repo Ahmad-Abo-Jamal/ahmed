@@ -1,15 +1,19 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 require_once '../config.php';
 
 try {
     // Get all sectors with their brands
-    $sectors = $db->query("SELECT * FROM sectors WHERE status = 'active' ORDER BY display_order ASC")->fetchAll();
+    $stmt = $db->prepare("SELECT * FROM sectors WHERE status = 'active' ORDER BY display_order ASC");
+    $stmt->execute();
+    $sectors = $stmt->fetchAll();
     
     $result = [];
     
     foreach ($sectors as $sector) {
-        $brands = $db->query("SELECT * FROM brands WHERE sector_id = ? AND status = 'active' ORDER BY display_order ASC", [$sector['id']])->fetchAll();
+        $brandStmt = $db->prepare("SELECT * FROM brands WHERE sector_id = ? AND status = 'active' ORDER BY display_order ASC");
+        $brandStmt->execute([$sector['id']]);
+        $brands = $brandStmt->fetchAll();
         
         // Convert database keys to frontend-compatible keys
         $sectorData = [
@@ -42,13 +46,12 @@ try {
     echo json_encode([
         'success' => true,
         'sectors' => $result
-    ]);
+    ], JSON_UNESCAPED_UNICODE);
     
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
-        'message' => 'Database error'
-    ]);
+        'message' => 'خطأ في قاعدة البيانات'
+    ], JSON_UNESCAPED_UNICODE);
 }
-?>

@@ -38,6 +38,7 @@
             line-height: 1.6;
             overflow-x: hidden;
             direction: rtl;
+            cursor: none;
         }
 
         .container {
@@ -441,27 +442,13 @@
             transform: translateY(0);
         }
     </style>
+    <link rel="stylesheet" href="/static/css/site-layout.css">
 </head>
 
 <body>
+    <div class="custom-cursor" id="customCursor"></div>
+    <div id="site-header"></div>
     <!-- Navigation -->
-    <nav>
-        <div class="container nav-container">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">أ</div>
-                <span>أحمد أبو المجد</span>
-            </a>
-
-            <div class="nav-links" id="navLinks">
-                <a href="index.html">الرئيسية</a>
-                <a href="index.html#services">الخدمات</a>
-                <a href="index.html#about">من أنا</a>
-                <a href="timeline.html" class="active">رحلتي</a>
-                <a href="index.html#news">الأخبار</a>
-                <a href="index.html#contact">تواصل معي</a>
-            </div>
-        </div>
-    </nav>
 
     <!-- Hero with Video Background -->
     <section class="hero-video">
@@ -574,14 +561,7 @@
     </div>
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-bottom">
-                <p>© 2026 أحمد أبو المجد - جميع الحقوق محفوظة</p>
-                <p>صنع بحب ❤️ من الأمة المصرية 🇪🇬</p>
-            </div>
-        </div>
-    </footer>
+    <div id="site-footer"></div>
 
     <script>
         // Fade in on scroll animation
@@ -674,6 +654,7 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', loadGallery);
     </script>
+    <script src="/static/js/site-layout.js"></script>
 </body>
 
 </html>

@@ -57,10 +57,10 @@ try {
             $words = str_word_count($plain);
             $reading_time = max(1, intval(ceil($words / 200)));
 
-            $stmt = $db->prepare(""
+            $stmt = $db->prepare("
                 INSERT INTO articles (title, slug, excerpt, content, category, badge, image_url, author_id, status, publish_date, word_count, reading_time)
                 VALUES (:title, :slug, :excerpt, :content, :category, :badge, :image_url, :author_id, :status, NOW(), :word_count, :reading_time)
-            """);
+            ");
             
             $stmt->execute([
                 ':title' => $title,
@@ -96,13 +96,13 @@ try {
             $words = str_word_count($plain);
             $reading_time = max(1, intval(ceil($words / 200)));
 
-            $stmt = $db->prepare(""
+            $stmt = $db->prepare("
                 UPDATE articles SET 
                 title = :title, slug = :slug, excerpt = :excerpt, content = :content,
                 category = :category, badge = :badge, image_url = :image_url, status = :status,
                 word_count = :word_count, reading_time = :reading_time
                 WHERE id = :id
-            """);
+            ");
             
             $stmt->execute([
                 ':title' => $title,

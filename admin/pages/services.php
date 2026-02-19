@@ -10,7 +10,8 @@
 </style>
 
 <?php
-$stmt = $db->query("SELECT * FROM services ORDER BY display_order ASC");
+$stmt = $db->prepare("SELECT * FROM services ORDER BY display_order ASC");
+$stmt->execute();
 $services = $stmt->fetchAll();
 ?>
 

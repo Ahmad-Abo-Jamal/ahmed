@@ -2,11 +2,11 @@
 // ===================================
 // Database Configuration
 // ===================================
-
-define('DB_HOST', 'localhost');
-define('DB_USER', 's736913_abo');
-define('DB_PASS', 'D8onEzfF');
-define('DB_NAME', 's736913_abo');
+// Use environment variables if available, fallback to defined values
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_USER', getenv('DB_USER') ?: 's736913_abo');
+define('DB_PASS', getenv('DB_PASS') ?: 'D8onEzfF');
+define('DB_NAME', getenv('DB_NAME') ?: 's736913_abo');
 
 // ===================================
 // Site Configuration 
@@ -17,8 +17,13 @@ define('ADMIN_URL', SITE_URL . '/admin/index.php');
 // ===================================
 // Error Reporting (Disable in production)
 // ===================================
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+if (getenv('ENVIRONMENT') === 'production' || (!getenv('DEBUG') && $_SERVER['HTTP_HOST'] !== 'localhost')) {
+    error_reporting(0);
+    ini_set('display_errors', 0);
+} else {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
 
 // ===================================
 // Session Configuration

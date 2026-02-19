@@ -33,6 +33,7 @@
             background: var(--neutral-light);
             color: var(--neutral-dark);
             direction: rtl;
+            cursor: none;
         }
 
         .container {
@@ -281,6 +282,7 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            overflow-y: auto;
         }
 
         .modal.active {
@@ -301,6 +303,7 @@
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
+            box-shadow: var(--shadow-lg);
         }
 
         .modal-close {
@@ -317,10 +320,12 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
+            transition: var(--transition);
         }
 
         .modal-close:hover {
             background: #e0e0e0;
+            transform: scale(1.1);
         }
 
         /* Pagination */
@@ -442,30 +447,22 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/static/css/site-layout.css">
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-shield-alt"></i>
-                    أحمد أبو المجد
-                </a>
-                <nav class="nav-back">
-                    <a href="index.html"><i class="fas fa-home"></i> الرئيسية</a>
-                    <a href="articles.html"><i class="fas fa-newspaper"></i> الأخبار</a>
-                    <a href="courses.html"><i class="fas fa-graduation-cap"></i> الدورات</a>
-                </nav>
-            </div>
-        </div>
-    </header>
+    <div class="custom-cursor" id="customCursor"></div>
+    <div id="site-header"></div>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
             <h1><i class="fas fa-book"></i> القاموس العربي</h1>
             <p>قاموس شامل للمصطلحات والكلمات العربية مع أمثلة وشروح مفصلة</p>
+            <div style="margin-top: 20px; display: flex; gap: 15px; justify-content: center;">
+                <a href="#" id="adminLink" style="display: none; padding: 10px 20px; background: #fff; color: var(--primary-blue); border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s;">
+                    <i class="fas fa-edit"></i> إدارة المصطلحات
+                </a>
+            </div>
         </div>
     </section>
 
@@ -616,7 +613,7 @@
             }
 
             grid.innerHTML = pageWords.map(word => `
-                <div class="word-card" onclick="showWordDetail(${word.id})">
+                <div class="word-card clickable" onclick="showWordDetail(${word.id})" style="cursor: pointer;">
                     <div class="word-header">
                         <div class="word-title">${word.word_ar}</div>
                         <span class="difficulty-badge difficulty-${word.difficulty_level}">${getDifficultyLabel(word.difficulty_level)}</span>
@@ -632,7 +629,7 @@
                     ${word.examples ? `
                         <div class="word-examples">
                             <strong>مثال:</strong>
-                            <div class="example-item">${JSON.parse(word.examples)[0] || word.examples}</div>
+                            <div class="example-item">${typeof word.examples === 'string' ? word.examples : (Array.isArray(word.examples) ? word.examples[0] : JSON.parse(word.examples)[0] || '')}</div>
                         </div>
                     ` : ''}
 
@@ -647,87 +644,96 @@
 
         // Show word detail modal
         function showWordDetail(wordId) {
-            const word = allWords.find(w => w.id === wordId);
-            if (!word) return;
+            const word = allWords.find(w => String(w.id) === String(wordId));
+            if (!word) {
+                console.error('Word not found:', wordId);
+                return;
+            }
 
-            const examples = word.examples ? JSON.parse(word.examples) : [];
-            const synonyms = word.synonyms ? word.synonyms.split(',') : [];
-            const antonyms = word.antonyms ? word.antonyms.split(',') : [];
+            try {
+                const examples = Array.isArray(word.examples) ? word.examples : 
+                                (typeof word.examples === 'string' ? JSON.parse(word.examples) : []);
+                const synonyms = word.synonyms ? word.synonyms.split(',') : [];
+                const antonyms = word.antonyms ? word.antonyms.split(',') : [];
 
-            const modal = document.getElementById('wordModal');
-            const content = document.getElementById('modalContent');
+                const modal = document.getElementById('wordModal');
+                const content = document.getElementById('modalContent');
 
-            content.innerHTML = `
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-                
-                <div style="text-align: right; direction: rtl;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
-                        <div>
-                            <h2 style="font-size: 2.5rem; color: var(--primary-blue); margin-bottom: 5px;">${word.word_ar}</h2>
-                            <p style="color: #999; font-size: 0.95rem;">${word.pronunciation || ''}</p>
-                        </div>
-                        <span class="difficulty-badge difficulty-${word.difficulty_level}">${getDifficultyLabel(word.difficulty_level)}</span>
-                    </div>
-
-                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; line-height: 1.8;">
-                        <strong>التعريف:</strong><br>
-                        ${word.definition_ar}
-                    </div>
-
-                    ${examples.length > 0 ? `
-                        <div style="margin-bottom: 20px;">
-                            <h3 style="margin-bottom: 10px; color: var(--primary-blue);">أمثلة تطبيقية:</h3>
-                            ${examples.map(ex => `
-                                <div style="padding: 10px; border-right: 3px solid var(--secondary-purple); margin-bottom: 10px; color: #555;">
-                                    • ${ex}
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : ''}
-
-                    ${word.image_url ? `
-                        <div style="margin-bottom: 20px; text-align: center;">
-                            <img src="${word.image_url}" alt="${word.word_ar}" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
-                        </div>
-                    ` : ''}
-
-                    ${word.video_url ? `
-                        <div style="margin-bottom: 20px;">
-                            <a href="${word.video_url}" target="_blank" class="btn-link" style="display: inline-block; padding: 10px 20px; background: var(--secondary-purple); color: white; border-radius: 8px; text-decoration: none;">
-                                <i class="fas fa-video"></i> شاهد الفيديو التوضيحي
-                            </a>
-                        </div>
-                    ` : ''}
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                        ${synonyms.length > 0 ? `
+                content.innerHTML = `
+                    <button class="modal-close" onclick="closeModal()">&times;</button>
+                    
+                    <div style="text-align: right; direction: rtl;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 20px;">
                             <div>
-                                <strong style="color: var(--primary-blue);">المرادفات:</strong>
-                                <div style="margin-top: 10px;">
-                                    ${synonyms.map(s => `<span style="display: inline-block; padding: 5px 10px; background: #e8f5e9; border-radius: 4px; margin: 5px; font-size: 0.9rem;">${s.trim()}</span>`).join('')}
-                                </div>
+                                <h2 style="font-size: 2.5rem; color: var(--primary-blue); margin-bottom: 5px;">${word.word_ar || 'بدون عنوان'}</h2>
+                                <p style="color: #999; font-size: 0.95rem;">${word.pronunciation || ''}</p>
+                            </div>
+                            <span class="difficulty-badge difficulty-${word.difficulty_level}">${getDifficultyLabel(word.difficulty_level)}</span>
+                        </div>
+
+                        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px; line-height: 1.8;">
+                            <strong>التعريف:</strong><br>
+                            ${word.definition_ar || 'لا يوجد تعريف'}
+                        </div>
+
+                        ${(examples && examples.length > 0) ? `
+                            <div style="margin-bottom: 20px;">
+                                <h3 style="margin-bottom: 10px; color: var(--primary-blue);">أمثلة تطبيقية:</h3>
+                                ${examples.map(ex => `
+                                    <div style="padding: 10px; border-right: 3px solid var(--secondary-purple); margin-bottom: 10px; color: #555;">
+                                        • ${ex}
+                                    </div>
+                                `).join('')}
                             </div>
                         ` : ''}
-                        
-                        ${antonyms.length > 0 ? `
-                            <div>
-                                <strong style="color: var(--primary-blue);">الأضداد:</strong>
-                                <div style="margin-top: 10px;">
-                                    ${antonyms.map(a => `<span style="display: inline-block; padding: 5px 10px; background: #ffebee; border-radius: 4px; margin: 5px; font-size: 0.9rem;">${a.trim()}</span>`).join('')}
-                                </div>
+
+                        ${word.image_url ? `
+                            <div style="margin-bottom: 20px; text-align: center;">
+                                <img src="${word.image_url}" alt="${word.word_ar}" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: var(--shadow-md);">
                             </div>
                         ` : ''}
-                    </div>
 
-                    <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; font-size: 0.9rem; color: #666;">
-                        <i class="fas fa-info-circle"></i> النوع: <strong>${getWordTypeLabel(word.word_type)}</strong> | 
-                        الفئة: <strong>${word.category || 'عام'}</strong> | 
-                        عدد الاستخدامات: <strong>${word.usage_count || 0}</strong>
-                    </div>
-                </div>
-            `;
+                        ${word.video_url ? `
+                            <div style="margin-bottom: 20px;">
+                                <a href="${word.video_url}" target="_blank" class="btn-link" style="display: inline-block; padding: 10px 20px; background: var(--secondary-purple); color: white; border-radius: 8px; text-decoration: none; cursor: pointer;">
+                                    <i class="fas fa-video"></i> شاهد الفيديو التوضيحي
+                                </a>
+                            </div>
+                        ` : ''}
 
-            modal.classList.add('active');
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                            ${(synonyms && synonyms.length > 0) ? `
+                                <div>
+                                    <strong style="color: var(--primary-blue);">المرادفات:</strong>
+                                    <div style="margin-top: 10px;">
+                                        ${synonyms.map(s => `<span style="display: inline-block; padding: 5px 10px; background: #e8f5e9; border-radius: 4px; margin: 5px; font-size: 0.9rem;">${s.trim()}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            ${(antonyms && antonyms.length > 0) ? `
+                                <div>
+                                    <strong style="color: var(--primary-blue);">الأضداد:</strong>
+                                    <div style="margin-top: 10px;">
+                                        ${antonyms.map(a => `<span style="display: inline-block; padding: 5px 10px; background: #ffebee; border-radius: 4px; margin: 5px; font-size: 0.9rem;">${a.trim()}</span>`).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div style="background: #f0f0f0; padding: 15px; border-radius: 8px; font-size: 0.9rem; color: #666;">
+                            <i class="fas fa-info-circle"></i> النوع: <strong>${getWordTypeLabel(word.word_type)}</strong> | 
+                            الفئة: <strong>${word.category || 'عام'}</strong> | 
+                            عدد الاستخدامات: <strong>${word.usage_count || 0}</strong>
+                        </div>
+                    </div>
+                `;
+
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('Error showing word detail:', error);
+                alert('حدث خطأ في عرض تفاصيل الكلمة');
+            }
         }
 
         function closeModal() {
@@ -813,7 +819,23 @@
         });
 
         // Load on page load
-        loadDictionary();
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDictionary();
+            
+            // Check if user is admin
+            fetch('/admin/ajax/users.php?action=check_admin')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.isAdmin) {
+                        const adminLink = document.getElementById('adminLink');
+                        adminLink.style.display = 'inline-block';
+                        adminLink.href = '/admin/index.php?page=dictionary';
+                    }
+                })
+                .catch(e => console.log('Admin check failed:', e));
+        });
     </script>
+    <div id="site-footer"></div>
+    <script src="/static/js/site-layout.js"></script>
 </body>
 </html>

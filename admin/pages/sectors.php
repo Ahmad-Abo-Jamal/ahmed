@@ -209,7 +209,9 @@
 </style>
 
 <?php
-$sectors = $db->query("SELECT * FROM sectors ORDER BY display_order ASC")->fetchAll();
+$stmt = $db->prepare("SELECT * FROM sectors ORDER BY display_order ASC");
+$stmt->execute();
+$sectors = $stmt->fetchAll();
 ?>
 
 <div class="sectors-container">
@@ -471,16 +473,52 @@ $sectors = $db->query("SELECT * FROM sectors ORDER BY display_order ASC")->fetch
     }
 
     function editSector(id) {
-        // Fetch sector data and populate form
-        // This would need an AJAX call to your admin API
-        alert('جاري تطوير هذه الميزة');
+        fetch(`/admin/ajax/sectors.php?action=get_sector&id=${id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const sector = data.sector;
+                    document.getElementById('sectorId').value = sector.id;
+                    document.getElementById('sectorNameAr').value = sector.name_ar;
+                    document.getElementById('sectorNameEn').value = sector.name;
+                    document.getElementById('sectorIcon').value = sector.icon;
+                    document.getElementById('sectorDesc').value = sector.description;
+                    document.getElementById('sectorStatus').value = sector.status;
+                    document.getElementById('sectorModalTitle').textContent = 'تعديل القطاع';
+                    document.getElementById('sectorModal').classList.add('active');
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            })
+            .catch(e => Swal.fire('خطأ', 'فشل تحميل البيانات', 'error'));
     }
 
     function deleteSector(id) {
-        if (confirm('هل تريد حذف هذا القطاع وجميع العلامات المرتبطة به؟')) {
-            // Call delete API
-            alert('جاري تطوير هذه الميزة');
-        }
+        Swal.fire({
+            title: 'هل أنت متأكد؟',
+            text: 'سيتم حذف القطاع وجميع العلامات المرتبطة به!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/admin/ajax/sectors.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'delete_sector', id: id })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('تم', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('خطأ', data.message, 'error');
+                    }
+                })
+                .catch(e => Swal.fire('خطأ', 'فشل الحذف', 'error'));
+            }
+        });
     }
 
     function closeSectorModal() {
@@ -499,15 +537,59 @@ $sectors = $db->query("SELECT * FROM sectors ORDER BY display_order ASC")->fetch
     }
 
     function editBrand(id) {
-        // Fetch brand data and populate form
-        alert('جاري تطوير هذه الميزة');
+        fetch(`/admin/ajax/brands.php?action=get_brand&id=${id}`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    const brand = data.brand;
+                    document.getElementById('brandId').value = brand.id;
+                    document.getElementById('brandSectorId').value = brand.sector_id;
+                    document.getElementById('brandNameAr').value = brand.name_ar;
+                    document.getElementById('brandNameEn').value = brand.name;
+                    document.getElementById('brandCategoryAr').value = brand.category_ar;
+                    document.getElementById('brandCategoryEn').value = brand.category;
+                    document.getElementById('brandDescAr').value = brand.description_ar;
+                    document.getElementById('brandDescEn').value = brand.description;
+                    document.getElementById('brandIcon').value = brand.icon;
+                    document.getElementById('brandLogoUrl').value = brand.logo_url;
+                    document.getElementById('brandColor1').value = brand.logo_color;
+                    document.getElementById('brandColor2').value = brand.logo_color_secondary;
+                    document.getElementById('brandStatus').value = brand.status;
+                    document.getElementById('brandModalTitle').textContent = 'تعديل العلامة التجارية';
+                    document.getElementById('brandModal').classList.add('active');
+                } else {
+                    Swal.fire('خطأ', data.message, 'error');
+                }
+            })
+            .catch(e => Swal.fire('خطأ', 'فشل تحميل البيانات', 'error'));
     }
 
     function deleteBrand(id) {
-        if (confirm('هل تريد حذف هذه العلامة التجارية؟')) {
-            // Call delete API
-            alert('جاري تطوير هذه الميزة');
-        }
+        Swal.fire({
+            title: 'هل أنت متأكد؟',
+            text: 'سيتم حذف هذه العلامة التجارية!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch('/admin/ajax/brands.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ action: 'delete_brand', id: id })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('تم', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('خطأ', data.message, 'error');
+                    }
+                })
+                .catch(e => Swal.fire('خطأ', 'فشل الحذف', 'error'));
+            }
+        });
     }
 
     function closeBrandModal() {
@@ -517,13 +599,68 @@ $sectors = $db->query("SELECT * FROM sectors ORDER BY display_order ASC")->fetch
     // Form Submissions
     document.getElementById('sectorForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        // Submit sector data
-        alert('جاري تطوير هذه الميزة');
+        const id = document.getElementById('sectorId').value;
+        const action = id ? 'edit_sector' : 'add_sector';
+        
+        const data = new URLSearchParams({
+            action: action,
+            id: id,
+            name_ar: document.getElementById('sectorNameAr').value,
+            name: document.getElementById('sectorNameEn').value,
+            icon: document.getElementById('sectorIcon').value,
+            description: document.getElementById('sectorDesc').value,
+            status: document.getElementById('sectorStatus').value
+        });
+
+        fetch('/admin/ajax/sectors.php', {
+            method: 'POST',
+            body: data
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('نجح', data.message, 'success').then(() => location.reload());
+            } else {
+                Swal.fire('خطأ', data.message, 'error');
+            }
+        })
+        .catch(e => Swal.fire('خطأ', 'فشل الحفظ', 'error'));
     });
 
     document.getElementById('brandForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        // Submit brand data
-        alert('جاري تطوير هذه الميزة');
+        const id = document.getElementById('brandId').value;
+        const action = id ? 'edit_brand' : 'add_brand';
+        
+        const data = new URLSearchParams({
+            action: action,
+            id: id,
+            sector_id: document.getElementById('brandSectorId').value,
+            name_ar: document.getElementById('brandNameAr').value,
+            name: document.getElementById('brandNameEn').value,
+            category_ar: document.getElementById('brandCategoryAr').value,
+            category: document.getElementById('brandCategoryEn').value,
+            description_ar: document.getElementById('brandDescAr').value,
+            description: document.getElementById('brandDescEn').value,
+            icon: document.getElementById('brandIcon').value,
+            logo_url: document.getElementById('brandLogoUrl').value,
+            logo_color: document.getElementById('brandColor1').value,
+            logo_color_secondary: document.getElementById('brandColor2').value,
+            status: document.getElementById('brandStatus').value
+        });
+
+        fetch('/admin/ajax/brands.php', {
+            method: 'POST',
+            body: data
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire('نجح', data.message, 'success').then(() => location.reload());
+            } else {
+                Swal.fire('خطأ', data.message, 'error');
+            }
+        })
+        .catch(e => Swal.fire('خطأ', 'فشل الحفظ', 'error'));
     });
 </script>

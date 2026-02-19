@@ -5,7 +5,7 @@ requireAdmin();
 header('Content-Type: application/json');
 
 try {
-    $action = $_POST['action'] ?? '';
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
     
     switch($action) {
         case 'add_brand':
@@ -27,7 +27,9 @@ try {
             }
             
             // Verify sector exists
-            $sector = $db->query("SELECT * FROM sectors WHERE id = ?", [$sector_id])->fetch();
+            $stmt = $db->prepare("SELECT * FROM sectors WHERE id = ?");
+            $stmt->execute([$sector_id]);
+            $sector = $stmt->fetch();
             if (!$sector) {
                 throw new Exception('القطاع غير موجود');
             }
@@ -61,7 +63,9 @@ try {
             }
             
             // Verify brand exists
-            $brand = $db->query("SELECT * FROM brands WHERE id = ?", [$id])->fetch();
+            $stmt = $db->prepare("SELECT * FROM brands WHERE id = ?");
+            $stmt->execute([$id]);
+            $brand = $stmt->fetch();
             if (!$brand) {
                 throw new Exception('العلامة التجارية غير موجودة');
             }
@@ -77,7 +81,9 @@ try {
         case 'delete_brand':
             $id = (int)$_POST['id'];
             
-            $brand = $db->query("SELECT * FROM brands WHERE id = ?", [$id])->fetch();
+            $stmt = $db->prepare("SELECT * FROM brands WHERE id = ?");
+            $stmt->execute([$id]);
+            $brand = $stmt->fetch();
             if (!$brand) {
                 throw new Exception('العلامة التجارية غير موجودة');
             }
@@ -92,7 +98,9 @@ try {
             
         case 'get_brand':
             $id = (int)$_GET['id'];
-            $brand = $db->query("SELECT * FROM brands WHERE id = ?", [$id])->fetch();
+            $stmt = $db->prepare("SELECT * FROM brands WHERE id = ?");
+            $stmt->execute([$id]);
+            $brand = $stmt->fetch();
             
             if (!$brand) {
                 throw new Exception('العلامة التجارية غير موجودة');

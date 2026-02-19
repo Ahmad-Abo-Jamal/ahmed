@@ -17,7 +17,8 @@
 </style>
 
 <?php
-$stmt = $db->query("SELECT a.*, u.full_name as author FROM articles a JOIN admin_users u ON a.author_id = u.id ORDER BY created_at DESC");
+$stmt = $db->prepare("SELECT a.*, u.full_name as author FROM articles a JOIN admin_users u ON a.author_id = u.id ORDER BY a.created_at DESC");
+$stmt->execute();
 $articles = $stmt->fetchAll();
 ?>
 
@@ -115,6 +116,7 @@ $articles = $stmt->fetchAll();
 
 <script>
 // Load TinyMCE for a modern editor
+let tinyMceReady = false;
 const tmceScript = document.createElement('script');
 tmceScript.src = 'https://cdn.jsdelivr.net/npm/tinymce@6.8.0/tinymce.min.js';
 tmceScript.referrerPolicy = 'origin';
@@ -147,14 +149,30 @@ tmceScript.onload = () => {
             var formData = new FormData();
             formData.append('image', blobInfo.blob(), blobInfo.filename());
             xhr.send(formData);
+        },
+        init_instance_callback: function() {
+            tinyMceReady = true;
         }
     });
 };
+
+function getTinyContent() {
+    return (typeof tinymce !== 'undefined' && tinymce.get('content')) ? tinymce.get('content').getContent() : $('#content').val();
+}
+
+function setTinyContent(content) {
+    if (typeof tinymce !== 'undefined' && tinymce.get('content')) {
+        tinymce.get('content').setContent(content);
+    } else {
+        $('#content').val(content);
+    }
+}
 
 function showAddForm() {
     $('#modalTitle').text('إضافة مقال جديد');
     $('#articleForm')[0].reset();
     $('#articleId').val('');
+    setTinyContent('');
     $('#articleModal').show();
 }
 
@@ -167,7 +185,7 @@ function editArticle(id) {
             $('#title').val(article.title);
             $('#slug').val(article.slug);
             $('#excerpt').val(article.excerpt);
-            if (tinymce.get('content')) tinymce.get('content').setContent(article.content); else $('#content').val(article.content);
+            setTinyContent(article.content);
             $('#category').val(article.category);
             $('#badge').val(article.badge);
             $('#image_url').val(article.image_url);
@@ -180,7 +198,7 @@ function editArticle(id) {
 $('#articleForm').on('submit', function(e) {
     e.preventDefault();
     // ensure we get content from TinyMCE if available
-    if (tinymce.get('content')) $('#content').val(tinymce.get('content').getContent());
+    $('#content').val(getTinyContent());
     const formData = $(this).serialize();
     const action = $('#articleId').val() ? 'update' : 'create';
     
@@ -230,10 +248,10 @@ function deleteArticle(id) {
         cancelButtonText: 'إلغاء'
     }).then((result) => {
         if (result.isConfirmed) {
-            $.post('ajax/articles.php', { action: 'delete', id: id }, function(response) {
+            $.post('/admin/ajax/articles.php', { action: 'delete', id: id }, function(response) {
                 if (response.success) {
                     Swal.fire('تم', 'تم حذف المقال', 'success');
-                    location.reload();
+                    refreshArticles();
                 }
             });
         }
@@ -258,7 +276,7 @@ $(document).on('click', '.modal', function(e) {
 // Preview button
 document.addEventListener('click', function(e){
     if (e.target && e.target.id === 'previewBtn'){
-        const content = tinymce.get('content') ? tinymce.get('content').getContent() : document.getElementById('content').value;
+        const content = getTinyContent();
         const win = window.open('', '_blank');
         win.document.write('<html><head><meta charset="utf-8"><title>معاينة</title></head><body>'+content+'</body></html>');
     }
@@ -266,7 +284,7 @@ document.addEventListener('click', function(e){
 
 // Update reading stats live
 function updateReadingStats(){
-    const content = tinymce.get('content') ? tinymce.get('content').getContent({format:'text'}) : document.getElementById('content').value;
+    const content = getTinyContent();
     const words = content.trim() ? content.trim().split(/\s+/).length : 0;
     const minutes = Math.max(1, Math.ceil(words / 200));
     document.getElementById('wordCount').textContent = words;
